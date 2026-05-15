@@ -1,0 +1,165 @@
+package com.example.revroom.features.design_studio.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.revroom.core.ui.BackOutlineButton
+import com.example.revroom.core.ui.GradientButton
+import com.example.revroom.core.ui.StepProgress
+import com.example.revroom.core.ui.StudioGradient
+import com.example.revroom.core.ui.StudioScaffold
+import com.example.revroom.core.ui.StudioTab
+import com.example.revroom.core.ui.StudioText
+import com.example.revroom.core.ui.TopTitleBar
+import com.example.revroom.features.design_studio.viewmodel.DesignViewModel
+
+@Composable
+fun RoomTypeScreen(
+    selectedRoomType: String?,
+    roomTypes: List<DesignViewModel.SelectionItem>,
+    onRoomTypeSelected: (String) -> Unit,
+    onNext: () -> Unit,
+    onBack: () -> Unit,
+    onInterior: () -> Unit,
+    onExterior: () -> Unit,
+    onChat: () -> Unit,
+    onGallery: () -> Unit
+) {
+    StudioScaffold(
+        selectedTab = StudioTab.Interior,
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding(),
+        onInterior = onInterior,
+        onExterior = onExterior,
+        onChat = onChat,
+        onGallery = onGallery
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            TopTitleBar(
+                title = "Interior Design",
+                modifier = Modifier.padding(top = 16.dp),
+                leading = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = StudioText
+                        )
+                    }
+                }
+            )
+
+            StepProgress(
+                currentStep = 2,
+                caption = "What room is this?",
+                modifier = Modifier.padding(top = 6.dp)
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 26.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp),
+                userScrollEnabled = false
+            ) {
+                items(roomTypes, key = { it.id }) { room ->
+                    RoundSelectionItem(
+                        item = room,
+                        selected = selectedRoomType == room.id,
+                        onClick = { onRoomTypeSelected(room.id) }
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                BackOutlineButton(
+                    text = "Back",
+                    modifier = Modifier.weight(1f),
+                    onClick = onBack
+                )
+                GradientButton(
+                    text = "Next",
+                    icon = Icons.AutoMirrored.Filled.ArrowForward,
+                    enabled = selectedRoomType != null,
+                    modifier = Modifier.weight(2f),
+                    onClick = onNext
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun RoundSelectionItem(
+    item: DesignViewModel.SelectionItem,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(82.dp)
+                .clip(CircleShape)
+                .background(Brush.linearGradient(item.colors))
+                .border(if (selected) 3.dp else 0.dp, StudioGradient, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0x33000000))))
+            )
+        }
+        Text(
+            text = item.label,
+            modifier = Modifier.padding(top = 9.dp),
+            color = if (selected) StudioText else Color(0xFF242A32),
+            fontSize = 12.sp,
+            lineHeight = 14.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
+            maxLines = 2
+        )
+    }
+}
