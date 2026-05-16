@@ -1,4 +1,4 @@
-package com.example.revroom.ui.theme
+package com.example.revroom.core.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
