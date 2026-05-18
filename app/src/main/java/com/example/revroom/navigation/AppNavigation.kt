@@ -50,7 +50,7 @@ fun AppNavigation() {
     ) {
         composable(Route.InteriorHome) {
             DesignHomeScreen(
-                title = "RoomGPT - Interior Design",
+                title = "Interior Design",
                 chips = listOf("Interior Design", "Furnish Empty Room", "Remove Furniture"),
                 features = viewModel.interiorFeatures,
                 selectedTab = StudioTab.Interior,
@@ -67,7 +67,7 @@ fun AppNavigation() {
 
         composable(Route.ExteriorHome) {
             DesignHomeScreen(
-                title = "RoomGPT - Exterior Design",
+                title = "Exterior Design",
                 chips = listOf("Exterior Design", "Facade", "Landscaping", "Add Greenery"),
                 features = viewModel.exteriorFeatures,
                 selectedTab = StudioTab.Exterior,

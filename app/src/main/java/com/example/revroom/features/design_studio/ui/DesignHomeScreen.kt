@@ -31,12 +31,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.revroom.core.ui.StudioScaffold
 import com.example.revroom.core.ui.StudioTab
 import com.example.revroom.core.ui.StudioText
 import com.example.revroom.features.design_studio.viewmodel.DesignViewModel
+import com.example.revroom.ui.theme.RevroomTheme
 
 @Composable
 fun DesignHomeScreen(
@@ -185,6 +187,58 @@ private fun FeatureCard(
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DesignHomeScreenPreview() {
+    RevroomTheme {
+        DesignHomeScreen(
+            title = "Design Studio",
+            chips = listOf("Living Room", "Bedroom", "Kitchen", "Office"),
+            features = listOf(
+                DesignViewModel.DesignFeatureItem(
+                    id = "interior_design",
+                    title = "Interior Design",
+                    subtitle = "Redesign your interior space",
+                    badge = "Before",
+                    colors = listOf(Color(0xFFE8E2D8), Color(0xFF75675B), Color(0xFF181818))
+                ),
+                DesignViewModel.DesignFeatureItem(
+                    id = "exterior_design",
+                    title = "Exterior Design",
+                    subtitle = "Redesign your exterior space",
+                    badge = "After",
+                    colors = listOf(Color(0xFFC6D8A8), Color(0xFF4D744B), Color(0xFF182512))
+                )
+            ),
+            selectedTab = StudioTab.Interior,
+            onFeatureClick = {},
+            onInterior = {},
+            onExterior = {},
+            onChat = {},
+            onGallery = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FeatureCardPreview() {
+    RevroomTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            FeatureCard(
+                feature = DesignViewModel.DesignFeatureItem(
+                    id = "interior_design",
+                    title = "Interior Design",
+                    subtitle = "Redesign your interior space",
+                    badge = "Before",
+                    colors = listOf(Color(0xFFE8E2D8), Color(0xFF75675B), Color(0xFF181818))
+                ),
+                onClick = {}
             )
         }
     }

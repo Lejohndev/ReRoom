@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.revroom.core.ui.StudioBackground
@@ -23,6 +24,7 @@ import com.example.revroom.core.ui.StudioMuted
 import com.example.revroom.core.ui.StudioScaffold
 import com.example.revroom.core.ui.StudioTab
 import com.example.revroom.core.ui.StudioText
+import com.example.revroom.ui.theme.RevroomTheme
 
 @Composable
 fun ChatPlaceholderScreen(
@@ -68,5 +70,18 @@ fun ChatPlaceholderScreen(
                 fontSize = 13.sp
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChatPlaceholderScreenPreview() {
+    RevroomTheme {
+        ChatPlaceholderScreen(
+            onInterior = {},
+            onExterior = {},
+            onChat = {},
+            onGallery = {}
+        )
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.revroom.core.ui.BackOutlineButton
@@ -41,6 +42,7 @@ import com.example.revroom.core.ui.StudioTab
 import com.example.revroom.core.ui.StudioText
 import com.example.revroom.core.ui.TopTitleBar
 import com.example.revroom.features.design_studio.viewmodel.DesignViewModel
+import com.example.revroom.ui.theme.RevroomTheme
 
 @Composable
 fun RoomTypeScreen(
@@ -160,6 +162,48 @@ fun RoundSelectionItem(
             fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
             textAlign = TextAlign.Center,
             maxLines = 2
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RoomTypeScreenPreview() {
+    val sampleRoomTypes = listOf(
+        DesignViewModel.SelectionItem("living_room", "Living Room", listOf(Color(0xFFD8C3A5), Color(0xFF735F4D))),
+        DesignViewModel.SelectionItem("bedroom", "Bedroom", listOf(Color(0xFFE6D8CC), Color(0xFF78909C))),
+        DesignViewModel.SelectionItem("kitchen", "Kitchen", listOf(Color(0xFFDCE8E4), Color(0xFF7E8D85))),
+        DesignViewModel.SelectionItem("bathroom", "Bathroom", listOf(Color(0xFFE7E1D4), Color(0xFFA79F93))),
+        DesignViewModel.SelectionItem("dining_room", "Dining Room", listOf(Color(0xFFECE4D7), Color(0xFFB48B58))),
+        DesignViewModel.SelectionItem("hallway", "Hallway", listOf(Color(0xFFE8E2DB), Color(0xFFB9A18D))),
+    )
+    RevroomTheme {
+        RoomTypeScreen(
+            selectedRoomType = "living_room",
+            roomTypes = sampleRoomTypes,
+            onRoomTypeSelected = {},
+            onNext = {},
+            onBack = {},
+            onInterior = {},
+            onExterior = {},
+            onChat = {},
+            onGallery = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RoundSelectionItemPreview() {
+    RevroomTheme {
+        RoundSelectionItem(
+            item = DesignViewModel.SelectionItem(
+                "living_room",
+                "Living Room",
+                listOf(Color(0xFFD8C3A5), Color(0xFF735F4D))
+            ),
+            selected = true,
+            onClick = {}
         )
     }
 }

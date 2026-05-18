@@ -16,9 +16,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.revroom.features.design_studio.components.BeforeAfterSlider
 import com.example.revroom.features.design_studio.model.DesignUiState
+import com.example.revroom.ui.theme.RevroomTheme
 
 @Composable
 fun ResultScreen(
@@ -57,5 +59,19 @@ fun ResultScreen(
                 Text(text = "Tạo ảnh khác", modifier = Modifier.padding(start = 10.dp))
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ResultScreenPreview() {
+    RevroomTheme {
+        ResultScreen(
+            uiState = DesignUiState(
+                originalImageUrl = "https://example.com/before.jpg",
+                designedImageUrl = "https://example.com/after.jpg"
+            ),
+            onCreateAnother = {}
+        )
     }
 }

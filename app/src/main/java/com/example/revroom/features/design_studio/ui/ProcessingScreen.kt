@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.revroom.core.ui.GradientButton
@@ -51,6 +52,7 @@ import com.example.revroom.features.design_studio.components.FanSpinnerAnimation
 import com.example.revroom.features.design_studio.model.DesignMode
 import com.example.revroom.features.design_studio.model.DesignPhase
 import com.example.revroom.features.design_studio.model.DesignUiState
+import com.example.revroom.ui.theme.RevroomTheme
 
 @Composable
 fun ProcessingResultScreen(
@@ -291,5 +293,70 @@ private fun FailedContent(
                 onClick = onRetry
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProcessingResultScreenProcessingPreview() {
+    RevroomTheme {
+        ProcessingResultScreen(
+            uiState = DesignUiState(
+                phase = DesignPhase.Processing,
+                designMode = DesignMode.Interior
+            ),
+            onRetry = {},
+            onSaveToHistory = {},
+            onCreateAnother = {},
+            onBack = {},
+            onInterior = {},
+            onExterior = {},
+            onChat = {},
+            onGallery = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProcessingResultScreenCompletedPreview() {
+    RevroomTheme {
+        ProcessingResultScreen(
+            uiState = DesignUiState(
+                phase = DesignPhase.Completed,
+                designMode = DesignMode.Interior,
+                originalImageUrl = "https://example.com/original.jpg",
+                designedImageUrl = "https://example.com/designed.jpg"
+            ),
+            onRetry = {},
+            onSaveToHistory = {},
+            onCreateAnother = {},
+            onBack = {},
+            onInterior = {},
+            onExterior = {},
+            onChat = {},
+            onGallery = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProcessingResultScreenFailedPreview() {
+    RevroomTheme {
+        ProcessingResultScreen(
+            uiState = DesignUiState(
+                phase = DesignPhase.Failed,
+                errorMessage = "Failed to connect to server. Please check your internet connection and try again."
+            ),
+            onRetry = {},
+            onSaveToHistory = {},
+            onCreateAnother = {},
+            onBack = {},
+            onInterior = {},
+            onExterior = {},
+            onChat = {},
+            onGallery = {}
+        )
     }
 }
