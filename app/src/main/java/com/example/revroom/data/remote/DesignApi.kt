@@ -1,0 +1,41 @@
+package com.example.revroom.data.remote
+
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.Part
+import retrofit2.http.Path
+
+interface DesignApi {
+    @Multipart
+    @POST("api/design/analyze")
+    suspend fun analyzeDesign(
+        @Header("user-id") userId: String,
+        @Part image: MultipartBody.Part,
+        @Part("roomType") roomType: RequestBody,
+        @Part("style") style: RequestBody
+    ): DesignResponse
+
+    @GET("api/design/status/{designId}")
+    suspend fun getDesignStatus(
+        @Header("user-id") userId: String,
+        @Path("designId") designId: String
+    ): DesignStatusResponse
+}
+
+data class DesignResponse(
+    val designId: String,
+    val originalImageUrl: String,
+    val status: String
+)
+
+data class DesignStatusResponse(
+    val designId: String,
+    val status: String,
+    val originalImageUrl: String,
+    val designedImageUrl: String?,
+    val errorMessage: String?
+)
