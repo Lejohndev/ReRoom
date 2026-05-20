@@ -1,6 +1,7 @@
 package com.example.revroom.features.history.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +36,9 @@ fun HistoryScreen(
     onInterior: () -> Unit,
     onExterior: () -> Unit,
     onChat: () -> Unit,
-    onGallery: () -> Unit
+    onGallery: () -> Unit,
+    // 👉 1. Thêm cái cờ này vào để báo hiệu "Có người bấm vào Avatar kìa!"
+    onProfileClick: () -> Unit
 ) {
     StudioScaffold(
         selectedTab = StudioTab.Gallery,
@@ -56,7 +59,9 @@ fun HistoryScreen(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background(StudioGradient),
+                            .background(StudioGradient)
+                            // 👉 2. Thêm cái lệnh "chọt" này vào cái Box
+                            .clickable { onProfileClick() },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(

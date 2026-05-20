@@ -20,6 +20,8 @@ import com.example.revroom.features.design_studio.ui.StyleScreen
 import com.example.revroom.features.design_studio.ui.UploadPhotoScreen
 import com.example.revroom.features.design_studio.viewmodel.DesignViewModel
 import com.example.revroom.features.history.ui.HistoryScreen
+import com.example.revroom.data.local.UserManager // Nhớ Alt+Enter import nếu thiếu
+import com.example.revroom.features.auth.ui.SettingsScreen
 
 @Composable
 fun AppNavigation() {
@@ -189,8 +191,13 @@ fun AppNavigation() {
                 onInterior = ::goInterior,
                 onExterior = ::goExterior,
                 onChat = ::goChat,
-                onGallery = ::goGallery
+                onGallery = ::goGallery,
+                onProfileClick = { navController.navigate(Route.Settings) }
             )
+        }
+        composable(Route.Settings) {
+            // Gọi màn hình của m ra, UserManager thì xin từ Context
+            SettingsScreen(userManager = UserManager(LocalContext.current))
         }
     }
 }
@@ -204,4 +211,5 @@ private object Route {
     const val ProcessingResult = "processing_result"
     const val Chat = "chat"
     const val Gallery = "gallery"
+    const val Settings = "settings"
 }
