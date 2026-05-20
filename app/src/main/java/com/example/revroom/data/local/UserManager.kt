@@ -1,6 +1,7 @@
 package com.example.revroom.data.local
 
 import android.content.Context
+import androidx.core.content.edit
 import java.util.UUID
 
 class UserManager(context: Context) {
@@ -16,7 +17,9 @@ class UserManager(context: Context) {
             deviceId = UUID.randomUUID().toString() // Tạo mã ID ngẫu nhiên không đụng hàng
 
             // Lưu lại vào máy để lần sau không bị tạo mới nữa
-            prefs.edit().putString("DEVICE_ID", deviceId).apply()
+            prefs.edit(commit = false) {
+                putString("DEVICE_ID", deviceId)
+            }
 
             // TODO: Ở ĐÂY SẼ GỌI API BẮN XUỐNG C# CỦA M NÀY!
             // Ví dụ: api.registerDevice(RegisterDeviceRequest(userId = deviceId, name = "New User"))
