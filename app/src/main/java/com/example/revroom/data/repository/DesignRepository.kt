@@ -14,6 +14,7 @@ import com.example.revroom.data.remote.RegisterDeviceRequest
 import com.example.revroom.features.design_studio.model.DesignJobStatus
 import com.example.revroom.features.design_studio.model.DesignRequest
 import com.example.revroom.features.design_studio.model.DesignResult
+import com.example.revroom.features.design_studio.model.DesignStyle
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -36,10 +37,17 @@ class DesignRepository(
             val imageBytes = ImageCompressor.readAndCompressIfNeeded(context, request.imageUri)
             val contentType = context.contentResolver.getType(request.imageUri) ?: "image/jpeg"
             val imagePart = createImagePart(imageBytes, contentType)
-            val roomTypePart = request.roomType.toRequestBody("text/plain".toMediaType())
-            val stylePart = request.style.toRequestBody("text/plain".toMediaType())
+            val styleIdPart = request.styleId.toString().toRequestBody("text/plain".toMediaType())
 
-            designApi.analyzeDesign(userId, imagePart, roomTypePart, stylePart).toDesignResult()
+            designApi.analyzeDesign(userId, imagePart, styleIdPart).toDesignResult()
+        }
+    }
+
+    suspend fun getDesignStyles(): Result<List<DesignStyle>> {
+        return runApiCall {
+            designApi.getDesignStyles().map { style ->
+                DesignStyle(styleId = style.styleId, styleName = style.styleName)
+            }
         }
     }
 
