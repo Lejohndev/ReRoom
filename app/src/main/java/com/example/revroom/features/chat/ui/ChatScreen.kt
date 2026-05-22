@@ -24,7 +24,7 @@ import com.example.revroom.core.ui.StudioMuted
 import com.example.revroom.core.ui.StudioScaffold
 import com.example.revroom.core.ui.StudioTab
 import com.example.revroom.core.ui.StudioText
-import com.example.revroom.ui.theme.RevroomTheme
+import com.example.revroom.core.theme.RevroomTheme
 
 @Composable
 fun ChatPlaceholderScreen(

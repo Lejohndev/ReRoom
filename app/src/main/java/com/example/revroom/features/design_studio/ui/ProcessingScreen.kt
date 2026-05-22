@@ -52,7 +52,7 @@ import com.example.revroom.features.design_studio.components.FanSpinnerAnimation
 import com.example.revroom.features.design_studio.model.DesignMode
 import com.example.revroom.features.design_studio.model.DesignPhase
 import com.example.revroom.features.design_studio.model.DesignUiState
-import com.example.revroom.ui.theme.RevroomTheme
+import com.example.revroom.core.theme.RevroomTheme
 
 @Composable
 fun ProcessingResultScreen(

@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.revroom.features.design_studio.components.BeforeAfterSlider
 import com.example.revroom.features.design_studio.model.DesignUiState
-import com.example.revroom.ui.theme.RevroomTheme
+import com.example.revroom.core.theme.RevroomTheme
 
 @Composable
 fun ResultScreen(

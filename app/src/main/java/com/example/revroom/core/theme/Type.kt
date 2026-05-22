@@ -1,4 +1,4 @@
-package com.example.revroom.ui.theme
+package com.example.revroom.core.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -13,7 +13,7 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.5.sp,
     )
     /* Other default text styles to override
     titleLarge = TextStyle(
@@ -28,7 +28,7 @@ val Typography = Typography(
         fontWeight = FontWeight.Medium,
         fontSize = 11.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.5.sp,
     )
     */
 )
