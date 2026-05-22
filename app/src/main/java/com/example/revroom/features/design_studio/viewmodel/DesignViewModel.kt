@@ -25,6 +25,9 @@ class DesignViewModel(
     private val _uiState = MutableStateFlow(DesignUiState())
     val uiState: StateFlow<DesignUiState> = _uiState.asStateFlow()
 
+    private val _designStyles = MutableStateFlow<List<SelectionItem>>(emptyList())
+    val designStyles: StateFlow<List<SelectionItem>> = _designStyles.asStateFlow()
+
     private var pollingJob: Job? = null
 
     data class DesignFeatureItem(
@@ -101,29 +104,17 @@ class DesignViewModel(
         SelectionItem("guest_room", "Guest Room", listOf(Color(0xFFE5D7C6), Color(0xFF9E8065))),
     )
 
-    val interiorStyles = listOf(
-        SelectionItem("custom", "Custom style", listOf(Color(0xFFF9C4EA), Color(0xFFD9E3FF))),
-        SelectionItem("modern", "Modern", listOf(Color(0xFFE4E0D9), Color(0xFF7D7269))),
-        SelectionItem("luxury", "Luxury", listOf(Color(0xFFC7BBB0), Color(0xFF43362F))),
-        SelectionItem("minimalist", "Minimalist", listOf(Color(0xFFF4F2EE), Color(0xFFC9C4B9))),
-        SelectionItem("scandinavian", "Scandinavian", listOf(Color(0xFFF0D7BE), Color(0xFFB87555))),
-        SelectionItem("industrial", "Industrial", listOf(Color(0xFFBCA88F), Color(0xFF48362A))),
-        SelectionItem("coastal", "Coastal", listOf(Color(0xFFD8EBF2), Color(0xFF7DA5B2))),
-        SelectionItem("bohemian", "Bohemian", listOf(Color(0xFFCFB48C), Color(0xFF6B4B32))),
-        SelectionItem("warm", "Warm", listOf(Color(0xFFE1B686), Color(0xFF7A5135))),
+    private val stylePalettes = listOf(
+        listOf(Color(0xFFE4E0D9), Color(0xFF7D7269)),
+        listOf(Color(0xFFF4F2EE), Color(0xFFC9C4B9)),
+        listOf(Color(0xFFF0D7BE), Color(0xFFB87555)),
+        listOf(Color(0xFFD8EBF2), Color(0xFF7DA5B2)),
+        listOf(Color(0xFFE1B686), Color(0xFF7A5135)),
     )
 
-    val exteriorStyles = listOf(
-        SelectionItem("custom", "Custom", listOf(Color(0xFF7B1FA2), Color(0xFFBA68C8))),
-        SelectionItem("modern", "Modern", listOf(Color(0xFFDAD7CC), Color(0xFF6F7D70))),
-        SelectionItem("traditional", "Traditional", listOf(Color(0xFFD8C5AA), Color(0xFF6E5A43))),
-        SelectionItem("sleek", "Sleek", listOf(Color(0xFFBFC7C1), Color(0xFF516056))),
-        SelectionItem("coastal", "Coastal", listOf(Color(0xFFD6EAF2), Color(0xFF6CA0B8))),
-        SelectionItem("farmhouse", "Farmhouse", listOf(Color(0xFFE7E0D3), Color(0xFF7B8065))),
-        SelectionItem("garden", "Garden", listOf(Color(0xFFD9E8C8), Color(0xFF558B5B))),
-        SelectionItem("villa", "Villa", listOf(Color(0xFFE3D6C4), Color(0xFF8F6E52))),
-        SelectionItem("minimal", "Minimal", listOf(Color(0xFFEDEDEA), Color(0xFF9EA4A1))),
-    )
+    init {
+        loadDesignStyles()
+    }
 
     fun startDesign(mode: DesignMode, featureId: String) {
         pollingJob?.cancel()
@@ -149,10 +140,9 @@ class DesignViewModel(
     fun createDesign() {
         val currentState = _uiState.value
         val imageUri = currentState.selectedImageUri
-        val roomType = currentState.selectedRoomType ?: "exterior"
-        val style = currentState.selectedStyle
+        val styleId = currentState.selectedStyle?.toIntOrNull()
 
-        if (imageUri == null || style == null || (currentState.designMode == DesignMode.Interior && currentState.selectedRoomType == null)) {
+        if (imageUri == null || styleId == null || (currentState.designMode == DesignMode.Interior && currentState.selectedRoomType == null)) {
             _uiState.value = currentState.copy(
                 phase = DesignPhase.Failed,
                 errorMessage = "Please choose a photo, room type, and style."
@@ -164,10 +154,8 @@ class DesignViewModel(
         _uiState.value = currentState.copy(phase = DesignPhase.Uploading, errorMessage = null)
 
         viewModelScope.launch {
-            val promptStyle = buildPromptStyle(currentState, roomType, style)
-
             repository.uploadDesign(
-                DesignRequest(imageUri = imageUri, roomType = roomType, style = promptStyle)
+                DesignRequest(imageUri = imageUri, styleId = styleId)
             )
                 .onSuccess { response ->
                     _uiState.value = _uiState.value.copy(
@@ -196,10 +184,24 @@ class DesignViewModel(
         _uiState.value = DesignUiState(designMode = _uiState.value.designMode)
     }
 
-    private fun buildPromptStyle(state: DesignUiState, roomType: String, style: String): String {
-        val mode = if (state.designMode == DesignMode.Interior) "interior" else "exterior"
-        val feature = state.selectedFeature ?: "design"
-        return "$mode $feature $roomType $style"
+    private fun loadDesignStyles() {
+        viewModelScope.launch {
+            repository.getDesignStyles()
+                .onSuccess { styles ->
+                    _designStyles.value = styles.mapIndexed { index, style ->
+                        SelectionItem(
+                            id = style.styleId.toString(),
+                            label = style.styleName,
+                            colors = stylePalettes[index % stylePalettes.size]
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = error.message ?: "Unable to load design styles."
+                    )
+                }
+        }
     }
 
     private fun startPolling(designId: String) {

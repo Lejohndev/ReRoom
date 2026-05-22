@@ -27,6 +27,7 @@ fun AppNavigation() {
     val factory = remember(context) { DesignViewModel.Factory(context) }
     val viewModel: DesignViewModel = viewModel(factory = factory)
     val uiState by viewModel.uiState.collectAsState()
+    val designStyles by viewModel.designStyles.collectAsState()
     val navController = rememberNavController()
 
     fun go(route: String) {
@@ -124,7 +125,7 @@ fun AppNavigation() {
                 title = if (isExterior) "Exterior Design" else "Interior Design",
                 selectedTab = if (isExterior) StudioTab.Exterior else StudioTab.Interior,
                 selectedStyle = uiState.selectedStyle,
-                styles = if (isExterior) viewModel.exteriorStyles else viewModel.interiorStyles,
+                styles = designStyles,
                 onStyleSelected = viewModel::selectStyle,
                 onCreateDesign = {
                     viewModel.createDesign()
