@@ -18,10 +18,9 @@ class MainActivity : ComponentActivity() {
         val authViewModel = AuthViewModel()
         val userId = userManager.getDeviceId()
 
-        // 2. Logic kiểm tra người mới -> Bắn ID
-        if (userManager.isNewUser) {
-            authViewModel.sendIdToServer(userId)
-            userManager.isNewUser = false
+        // 2. Logic kiểm tra nếu chưa đăng ký thành công trên server thì gửi lại
+        if (!userManager.isRegisteredOnServer) {
+            authViewModel.sendIdToServer(userManager, userId)
         }
 
         // 3. Khởi chạy Giao diện

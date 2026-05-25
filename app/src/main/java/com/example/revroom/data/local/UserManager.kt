@@ -9,26 +9,18 @@ class UserManager(context: Context) {
     private val prefs = context.getSharedPreferences("InteriorAIPrefs", Context.MODE_PRIVATE)
     var isNewUser = false
     fun getDeviceId(): String {
-        // 1. Kiểm tra xem trong máy đã có ID chưa
         var deviceId = prefs.getString("DEVICE_ID", null)
-
-        // 2. Nếu chưa có (nghĩa là mở app lần đầu), thì tạo mới một cái UUID
         if (deviceId == null) {
-            deviceId = UUID.randomUUID().toString() // Tạo mã ID ngẫu nhiên không đụng hàng
-
-            // Lưu lại vào máy để lần sau không bị tạo mới nữa
-            prefs.edit(commit = false) {
+            deviceId = UUID.randomUUID().toString()
+            prefs.edit(commit = true) { // Dùng commit = true để đảm bảo lưu ngay
                 putString("DEVICE_ID", deviceId)
             }
-
-            // TODO: Ở ĐÂY SẼ GỌI API BẮN XUỐNG C# CỦA M NÀY!
-            // Ví dụ: api.registerDevice(RegisterDeviceRequest(userId = deviceId, name = "New User"))
-            // Đánh dấu đây là người mới!
-            isNewUser = true
         }
-
-
         return deviceId
     }
+
+    var isRegisteredOnServer: Boolean
+        get() = prefs.getBoolean("IS_REGISTERED", false)
+        set(value) = prefs.edit { putBoolean("IS_REGISTERED", value) }
 
 }
