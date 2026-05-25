@@ -207,9 +207,7 @@ private fun CompletedContent(
             BeforeAfterSlider(
                 beforeImageUrl = originalImageUrl,
                 afterImageUrl = designedImageUrl,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(340.dp)
+                modifier = Modifier.fillMaxWidth()
             )
         } else {
             Text(

@@ -46,7 +46,15 @@ class DesignRepository(
     suspend fun getDesignStyles(): Result<List<DesignStyle>> {
         return runApiCall {
             designApi.getDesignStyles().map { style ->
-                DesignStyle(styleId = style.styleId, styleName = style.styleName)
+                DesignStyle(
+                    styleId = style.styleId,
+                    styleName = style.styleName,
+                    coreAesthetic = style.coreAesthetic,
+                    lightingOptions = style.lightingOptions,
+                    materialOptions = style.materialOptions,
+                    colorRuleOptions = style.colorRuleOptions,
+                    atmosphereOptions = style.atmosphereOptions
+                )
             }
         }
     }

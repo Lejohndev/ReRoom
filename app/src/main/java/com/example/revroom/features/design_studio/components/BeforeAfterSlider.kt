@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,13 +21,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -34,6 +38,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import kotlin.math.roundToInt
 
 /**
@@ -52,10 +57,19 @@ fun BeforeAfterSlider(
     modifier: Modifier = Modifier
 ) {
     var fraction by remember { mutableFloatStateOf(0.5f) }
+    var imageAspectRatio by remember(beforeImageUrl, afterImageUrl) { mutableStateOf<Float?>(null) }
+    val comparisonAspectRatio = (imageAspectRatio ?: 1f).coerceIn(0.75f, 1.8f)
+
+    fun updateAspectRatio(size: Size) {
+        size.toImageAspectRatio()?.let { aspectRatio ->
+            imageAspectRatio = aspectRatio
+        }
+    }
 
     BoxWithConstraints(
         modifier = modifier
-            .aspectRatio(4f / 3f)
+            .heightIn(max = 520.dp)
+            .aspectRatio(comparisonAspectRatio)
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFFE5E7EB))
     ) {
@@ -79,7 +93,13 @@ fun BeforeAfterSlider(
                 model = afterImageUrl,
                 contentDescription = "Ảnh thiết kế",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit,
+                success = { state ->
+                    LaunchedEffect(state.painter.intrinsicSize) {
+                        updateAspectRatio(state.painter.intrinsicSize)
+                    }
+                    SubcomposeAsyncImageContent()
+                },
                 error = { ImageErrorPlaceholder("Lỗi tải ảnh thiết kế") }
             )
 
@@ -96,7 +116,15 @@ fun BeforeAfterSlider(
                     modifier = Modifier
                         .width(containerWidth)
                         .fillMaxHeight(),
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
+                    success = { state ->
+                        LaunchedEffect(state.painter.intrinsicSize) {
+                            if (imageAspectRatio == null) {
+                                updateAspectRatio(state.painter.intrinsicSize)
+                            }
+                        }
+                        SubcomposeAsyncImageContent()
+                    },
                     error = { ImageErrorPlaceholder("Lỗi tải ảnh gốc") }
                 )
             }
@@ -134,6 +162,14 @@ fun BeforeAfterSlider(
                 )
             }
         }
+    }
+}
+
+private fun Size.toImageAspectRatio(): Float? {
+    return if (width.isFinite() && height.isFinite() && width > 0f && height > 0f) {
+        width / height
+    } else {
+        null
     }
 }
 

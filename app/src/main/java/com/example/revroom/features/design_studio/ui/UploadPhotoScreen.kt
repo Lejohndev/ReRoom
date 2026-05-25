@@ -8,9 +8,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -25,9 +26,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +65,8 @@ fun UploadPhotoScreen(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = onImageSelected
     )
+    var selectedImageAspectRatio by remember(selectedImageUri) { mutableStateOf<Float?>(null) }
+    val previewAspectRatio = (selectedImageAspectRatio ?: 1.35f).coerceIn(0.75f, 1.8f)
 
     StudioScaffold(
         selectedTab = selectedTab,
@@ -101,7 +109,8 @@ fun UploadPhotoScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(150.dp)
+                            .heightIn(max = 360.dp)
+                            .aspectRatio(previewAspectRatio)
                             .clip(RoundedCornerShape(14.dp))
                             .background(Color.White)
                             .border(1.dp, Color(0xFFDADDE3), RoundedCornerShape(14.dp))
@@ -115,7 +124,12 @@ fun UploadPhotoScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(RoundedCornerShape(10.dp)),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Fit,
+                                onSuccess = { state ->
+                                    state.painter.intrinsicSize.toImageAspectRatio()?.let { aspectRatio ->
+                                        selectedImageAspectRatio = aspectRatio
+                                    }
+                                }
                             )
                         } else {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -162,5 +176,13 @@ fun UploadPhotoScreen(
                 }
             }
         }
+    }
+}
+
+private fun Size.toImageAspectRatio(): Float? {
+    return if (width.isFinite() && height.isFinite() && width > 0f && height > 0f) {
+        width / height
+    } else {
+        null
     }
 }

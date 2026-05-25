@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +18,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.AutoAwesome
@@ -31,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,6 +63,8 @@ fun StyleScreen(
     onChat: () -> Unit,
     onGallery: () -> Unit
 ) {
+    val selectedStyleItem = styles.firstOrNull { it.id == selectedStyle }
+
     StudioScaffold(
         selectedTab = selectedTab,
         modifier = Modifier
@@ -126,6 +132,13 @@ fun StyleScreen(
                 }
             }
 
+            selectedStyleItem?.let { style ->
+                StyleDetailSection(
+                    item = style,
+                    modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
+                )
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -147,6 +160,89 @@ fun StyleScreen(
             }
         }
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun StyleDetailSection(
+    item: DesignViewModel.SelectionItem,
+    modifier: Modifier = Modifier
+) {
+    val optionGroups = listOf(
+        "Lighting" to item.lightingOptions,
+        "Materials" to item.materialOptions,
+        "Colors" to item.colorRuleOptions,
+        "Atmosphere" to item.atmosphereOptions
+    ).mapNotNull { (label, options) ->
+        val visibleOptions = options.filter { it.isNotBlank() }
+        if (visibleOptions.isEmpty()) null else label to visibleOptions
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color.White)
+            .border(1.dp, Color(0xFFE2D7E7), RoundedCornerShape(14.dp))
+            .padding(14.dp)
+    ) {
+        Text(
+            text = item.label,
+            color = StudioText,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        if (item.description.isNotBlank()) {
+            Text(
+                text = item.description,
+                modifier = Modifier.padding(top = 6.dp),
+                color = StudioMuted,
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        optionGroups.forEach { (label, options) ->
+            Text(
+                text = label,
+                modifier = Modifier.padding(top = 10.dp),
+                color = Color(0xFF4B5563),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
+            )
+            FlowRow(
+                modifier = Modifier.padding(top = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                options.forEach { option ->
+                    StyleTagChip(text = option)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StyleTagChip(text: String) {
+    Text(
+        text = text,
+        modifier = Modifier
+            .clip(RoundedCornerShape(999.dp))
+            .background(Color(0xFFF7EEF9))
+            .padding(horizontal = 9.dp, vertical = 5.dp),
+        color = Color(0xFF7A2B86),
+        fontSize = 11.sp,
+        lineHeight = 13.sp,
+        fontWeight = FontWeight.SemiBold,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable

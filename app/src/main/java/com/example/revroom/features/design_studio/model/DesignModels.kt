@@ -9,7 +9,12 @@ data class DesignRequest(
 
 data class DesignStyle(
     val styleId: Int,
-    val styleName: String
+    val styleName: String,
+    val coreAesthetic: String,
+    val lightingOptions: List<String>,
+    val materialOptions: List<String>,
+    val colorRuleOptions: List<String>,
+    val atmosphereOptions: List<String>
 )
 
 enum class DesignMode {
