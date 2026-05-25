@@ -12,6 +12,7 @@ import com.example.revroom.BuildConfig
 import com.example.revroom.core.network.ApiClient
 import com.example.revroom.core.utils.FileUtils
 import com.example.revroom.data.remote.RegisterDeviceRequest
+import com.example.revroom.data.local.UserManager
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -36,12 +37,13 @@ class AuthViewModel : ViewModel() {
         selectedImageUri = uri
     }
 
-    fun sendIdToServer(userId: String) {
+    fun sendIdToServer(userManager: UserManager, userId: String) {
         viewModelScope.launch {
             try {
                 val response = ApiClient.authApi.registerDevice(RegisterDeviceRequest(userId))
                 if (response.isSuccessful) {
                     Log.d("API_TEST", "Thành công! Đã bắn ID: $userId lên C#")
+                    userManager.isRegisteredOnServer = true
                 } else {
                     Log.e("API_TEST", "Lỗi từ C#: ${response.code()}")
                 }
