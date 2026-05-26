@@ -30,6 +30,24 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".features.history.ui.HistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Revroom"
+            android:label="My Projects" />
+
+        <activity
+            android:name=".features.history.ui.ProjectDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Revroom"
+            android:label="Project Details" />
+
+        <activity
+            android:name=".features.history.ui.ResultActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Revroom"
+            android:label="Design Preview" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

@@ -26,7 +26,7 @@ class LocalUserIdProvider(context: Context) {
 
     private companion object {
         const val TAG = "LocalUserIdProvider"
-        const val PREFS_NAME = "revroom_user"
-        const val KEY_USER_ID = "user_id"
+        const val PREFS_NAME = "InteriorAIPrefs"
+        const val KEY_USER_ID = "DEVICE_ID"
     }
 }
