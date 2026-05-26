@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
 
         // 2. Logic kiểm tra người mới -> Bắn ID
         if (userManager.isNewUser) {
-            authViewModel.sendIdToServer(userId)
+            authViewModel.sendIdToServer(userManager, userId)
             userManager.isNewUser = false
         }
 
