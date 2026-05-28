@@ -30,11 +30,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
@@ -57,6 +59,7 @@ fun BeforeAfterSlider(
     modifier: Modifier = Modifier
 ) {
     var fraction by remember { mutableFloatStateOf(0.5f) }
+    var containerWidthPx by remember { mutableFloatStateOf(0f) }
     var imageAspectRatio by remember(beforeImageUrl, afterImageUrl) { mutableStateOf<Float?>(null) }
     val comparisonAspectRatio = (imageAspectRatio ?: 1f).coerceIn(0.75f, 1.8f)
 
@@ -73,17 +76,17 @@ fun BeforeAfterSlider(
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFFE5E7EB))
     ) {
-        val containerWidth = maxWidth
-        val widthPx = with(LocalDensity.current) { containerWidth.toPx() }
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(widthPx) {
+                .onSizeChanged { size ->
+                    containerWidthPx = size.width.toFloat()
+                }
+                .pointerInput(containerWidthPx) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
-                        if (widthPx > 0f) {
-                            fraction = (fraction + dragAmount.x / widthPx).coerceIn(0.05f, 0.95f)
+                        if (containerWidthPx > 0f) {
+                            fraction = (fraction + dragAmount.x / containerWidthPx).coerceIn(0f, 1f)
                         }
                     }
                 }
@@ -106,16 +109,17 @@ fun BeforeAfterSlider(
             // Layer 2: Before image clipped to slider position
             Box(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .width(containerWidth * fraction)
-                    .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
+                    .fillMaxSize()
+                    .drawWithContent {
+                        clipRect(right = size.width * fraction.coerceIn(0f, 1f)) {
+                            this@drawWithContent.drawContent()
+                        }
+                    }
             ) {
                 SubcomposeAsyncImage(
                     model = beforeImageUrl,
                     contentDescription = "Ảnh gốc",
-                    modifier = Modifier
-                        .width(containerWidth)
-                        .fillMaxHeight(),
+                    modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit,
                     success = { state ->
                         LaunchedEffect(state.painter.intrinsicSize) {
@@ -133,7 +137,7 @@ fun BeforeAfterSlider(
             Box(
                 modifier = Modifier
                     .offset {
-                        IntOffset(x = (widthPx * fraction).roundToInt() - 1, y = 0)
+                        IntOffset(x = (containerWidthPx * fraction).roundToInt() - 1, y = 0)
                     }
                     .width(2.dp)
                     .fillMaxHeight()
@@ -145,7 +149,7 @@ fun BeforeAfterSlider(
                 modifier = Modifier
                     .offset {
                         IntOffset(
-                            x = (widthPx * fraction).roundToInt() - 22.dp.roundToPx(),
+                            x = (containerWidthPx * fraction).roundToInt() - 22.dp.roundToPx(),
                             y = 0
                         )
                     }

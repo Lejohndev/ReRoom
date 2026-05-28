@@ -160,7 +160,7 @@ private fun ProcessingContent() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        FanSpinnerAnimation(modifier = Modifier.size(92.dp))
+        FanSpinnerAnimation(modifier = Modifier.size(76.dp))
 
         Text(
             text = "Creating your redesign...",
@@ -172,7 +172,7 @@ private fun ProcessingContent() {
         )
 
         Text(
-            text = "Please wait while the fan works. This can take 1-3 minutes.",
+            text = "Please wait while we redesign your space. This can take 1-3 minutes.",
             modifier = Modifier.padding(top = 8.dp),
             color = StudioMuted,
             fontSize = 13.sp,
