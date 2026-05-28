@@ -38,8 +38,11 @@ class DesignRepository(
             val contentType = context.contentResolver.getType(request.imageUri) ?: "image/jpeg"
             val imagePart = createImagePart(imageBytes, contentType)
             val styleIdPart = request.styleId.toString().toRequestBody("text/plain".toMediaType())
+            val roomTypePart = request.roomType
+                ?.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaType())
 
-            designApi.analyzeDesign(userId, imagePart, styleIdPart).toDesignResult()
+            designApi.analyzeDesign(userId, imagePart, styleIdPart, roomTypePart).toDesignResult()
         }
     }
 
