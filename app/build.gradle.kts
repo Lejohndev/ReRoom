@@ -15,13 +15,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        // Khai báo địa chỉ API
         buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:5207/\"")
     }
 
     buildTypes {
         debug {
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:5207/\"")
+            buildConfigField("String", "API_BASE_URL", "\"http://192.168.1.103:5207/\"")            
             manifestPlaceholders["usesCleartextTraffic"] = "true"
         }
         release {
@@ -45,7 +44,10 @@ android {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+        vendor.set(JvmVendorSpec.ADOPTIUM)
+    }
 }
 
 dependencies {

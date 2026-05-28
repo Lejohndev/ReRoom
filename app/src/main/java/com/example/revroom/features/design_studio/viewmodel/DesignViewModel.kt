@@ -41,7 +41,12 @@ class DesignViewModel(
     data class SelectionItem(
         val id: String,
         val label: String,
-        val colors: List<Color>
+        val colors: List<Color>,
+        val description: String = "",
+        val lightingOptions: List<String> = emptyList(),
+        val materialOptions: List<String> = emptyList(),
+        val colorRuleOptions: List<String> = emptyList(),
+        val atmosphereOptions: List<String> = emptyList()
     )
 
     val interiorFeatures = listOf(
@@ -94,14 +99,13 @@ class DesignViewModel(
 
     val roomTypes = listOf(
         SelectionItem("living_room", "Living Room", listOf(Color(0xFFD8C3A5), Color(0xFF735F4D))),
-        SelectionItem("bedroom", "Bedroom", listOf(Color(0xFFE6D8CC), Color(0xFF78909C))),
+        SelectionItem("master_bedroom", "Master Bedroom", listOf(Color(0xFFE6D8CC), Color(0xFF78909C))),
         SelectionItem("kitchen", "Kitchen", listOf(Color(0xFFDCE8E4), Color(0xFF7E8D85))),
-        SelectionItem("bathroom", "Bathroom", listOf(Color(0xFFE7E1D4), Color(0xFFA79F93))),
         SelectionItem("dining_room", "Dining Room", listOf(Color(0xFFECE4D7), Color(0xFFB48B58))),
-        SelectionItem("hallway", "Hallway", listOf(Color(0xFFE8E2DB), Color(0xFFB9A18D))),
-        SelectionItem("master", "Master", listOf(Color(0xFFE7DDD0), Color(0xFF917C66))),
+        SelectionItem("bathroom", "Bathroom", listOf(Color(0xFFE7E1D4), Color(0xFFA79F93))),
+        SelectionItem("study_room", "Study Room", listOf(Color(0xFFE8E2DB), Color(0xFFB9A18D))),
         SelectionItem("kids_room", "Kids Room", listOf(Color(0xFFE9F0EF), Color(0xFFA7C7C5))),
-        SelectionItem("guest_room", "Guest Room", listOf(Color(0xFFE5D7C6), Color(0xFF9E8065))),
+        SelectionItem("walk_in_closet", "Walk-in Closet", listOf(Color(0xFFE5D7C6), Color(0xFF9E8065))),
     )
 
     private val stylePalettes = listOf(
@@ -155,7 +159,11 @@ class DesignViewModel(
 
         viewModelScope.launch {
             repository.uploadDesign(
-                DesignRequest(imageUri = imageUri, styleId = styleId)
+                DesignRequest(
+                    imageUri = imageUri,
+                    styleId = styleId,
+                    roomType = currentState.selectedRoomType
+                )
             )
                 .onSuccess { response ->
                     _uiState.value = _uiState.value.copy(
@@ -192,7 +200,12 @@ class DesignViewModel(
                         SelectionItem(
                             id = style.styleId.toString(),
                             label = style.styleName,
-                            colors = stylePalettes[index % stylePalettes.size]
+                            colors = stylePalettes[index % stylePalettes.size],
+                            description = style.coreAesthetic,
+                            lightingOptions = style.lightingOptions,
+                            materialOptions = style.materialOptions,
+                            colorRuleOptions = style.colorRuleOptions,
+                            atmosphereOptions = style.atmosphereOptions
                         )
                     }
                 }

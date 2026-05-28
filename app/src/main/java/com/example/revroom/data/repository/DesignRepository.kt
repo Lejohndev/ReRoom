@@ -38,15 +38,26 @@ class DesignRepository(
             val contentType = context.contentResolver.getType(request.imageUri) ?: "image/jpeg"
             val imagePart = createImagePart(imageBytes, contentType)
             val styleIdPart = request.styleId.toString().toRequestBody("text/plain".toMediaType())
+            val roomTypePart = request.roomType
+                ?.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaType())
 
-            designApi.analyzeDesign(userId, imagePart, styleIdPart).toDesignResult()
+            designApi.analyzeDesign(userId, imagePart, styleIdPart, roomTypePart).toDesignResult()
         }
     }
 
     suspend fun getDesignStyles(): Result<List<DesignStyle>> {
         return runApiCall {
             designApi.getDesignStyles().map { style ->
-                DesignStyle(styleId = style.styleId, styleName = style.styleName)
+                DesignStyle(
+                    styleId = style.styleId,
+                    styleName = style.styleName,
+                    coreAesthetic = style.coreAesthetic,
+                    lightingOptions = style.lightingOptions,
+                    materialOptions = style.materialOptions,
+                    colorRuleOptions = style.colorRuleOptions,
+                    atmosphereOptions = style.atmosphereOptions
+                )
             }
         }
     }

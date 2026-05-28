@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.revroom.core.theme.RevroomTheme
 import com.example.revroom.core.ui.BackOutlineButton
 import com.example.revroom.core.ui.GradientButton
 import com.example.revroom.core.ui.StepProgress
@@ -42,7 +43,6 @@ import com.example.revroom.core.ui.StudioTab
 import com.example.revroom.core.ui.StudioText
 import com.example.revroom.core.ui.TopTitleBar
 import com.example.revroom.features.design_studio.viewmodel.DesignViewModel
-import com.example.revroom.core.theme.RevroomTheme
 
 @Composable
 fun RoomTypeScreen(

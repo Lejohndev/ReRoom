@@ -15,7 +15,8 @@ interface DesignApi {
     suspend fun analyzeDesign(
         @Header("user-id") userId: String,
         @Part image: MultipartBody.Part,
-        @Part("styleId") styleId: RequestBody
+        @Part("styleId") styleId: RequestBody,
+        @Part("roomType") roomType: RequestBody?
     ): DesignResponse
 
     @GET("api/design/styles")
@@ -36,7 +37,12 @@ data class DesignResponse(
 
 data class DesignStyleResponse(
     val styleId: Int,
-    val styleName: String
+    val styleName: String,
+    val coreAesthetic: String,
+    val lightingOptions: List<String>,
+    val materialOptions: List<String>,
+    val colorRuleOptions: List<String>,
+    val atmosphereOptions: List<String>
 )
 
 data class DesignStatusResponse(
