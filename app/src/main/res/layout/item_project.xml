@@ -19,15 +19,37 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="140dp">
+            android:layout_height="160dp">
 
-            <ImageView
-                android:id="@+id/imgThumbnail"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:contentDescription="Project Thumbnail"
-                android:scaleType="centerCrop"
-                android:background="#F5F2EC" />
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <ImageView
+                    android:id="@+id/imgOriginal"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:scaleType="centerCrop"
+                    android:background="#F5F2EC"
+                    android:contentDescription="Original Image" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#FFFFFF" />
+
+                <ImageView
+                    android:id="@+id/imgGenerated"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:scaleType="centerCrop"
+                    android:background="#F5F2EC"
+                    android:contentDescription="Generated Image" />
+            </LinearLayout>
 
             <!-- Status Pill badge on top right -->
             <TextView
@@ -44,6 +66,19 @@
                 android:textColor="#FFFFFF"
                 android:textSize="10sp"
                 android:textStyle="bold" />
+
+            <!-- Delete button -->
+            <ImageButton
+                android:id="@+id/btnDelete"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_delete_icon"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="Delete Project"
+                app:tint="#FFFFFF" />
         </RelativeLayout>
 
         <LinearLayout

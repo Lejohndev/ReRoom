@@ -47,11 +47,17 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        adapter = ProjectAdapter { project ->
-            navigateToDetail(project)
-        }
+        adapter = ProjectAdapter(object : ProjectAdapter.OnItemClickListener {
+            override fun onItemClick(project: ProjectModel) {
+                navigateToDetail(project)
+            }
 
-        val gridLayoutManager = GridLayoutManager(this, 2)
+            override fun onDeleteClick(project: ProjectModel) {
+                showDeleteConfirmation(project)
+            }
+        })
+
+        val gridLayoutManager = GridLayoutManager(this, 1) // Change to 1 column since we show 2 images side-by-side now
         binding.rvProjects.layoutManager = gridLayoutManager
         binding.rvProjects.adapter = adapter
 
@@ -130,6 +136,29 @@ class HistoryActivity : AppCompatActivity() {
                 binding.layoutError.visibility = View.GONE
             }
         }
+
+        viewModel.deleteSuccess.observe(this) { success ->
+            if (success) {
+                Snackbar.make(binding.root, "Project deleted successfully", Snackbar.LENGTH_SHORT).show()
+            }
+        }
+
+        viewModel.deleteError.observe(this) { errorMsg ->
+            if (errorMsg != null) {
+                Snackbar.make(binding.root, errorMsg, Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun showDeleteConfirmation(project: ProjectModel) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Delete Project")
+            .setMessage("Are you sure you want to delete this project history?")
+            .setPositiveButton("Delete") { _, _ ->
+                project.designId?.let { viewModel.deleteProject(it) }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun updateUiStates(projects: List<ProjectModel>, isLoading: Boolean, error: String?) {

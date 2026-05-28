@@ -29,6 +29,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
 
     public interface OnItemClickListener {
         void onItemClick(ProjectModel project);
+        void onDeleteClick(ProjectModel project);
     }
 
     public ProjectAdapter(OnItemClickListener clickListener) {
@@ -107,18 +108,21 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         }
 
         void bind(final ProjectModel project, final OnItemClickListener listener) {
-            // Load Thumbnail (Prefers designed image outcome, falls back to original)
-            String imageUrl = project.getDesignedImageUrl();
-            if (imageUrl == null || imageUrl.trim().isEmpty()) {
-                imageUrl = project.getOriginalImageUrl();
-            }
-
+            // Load Original Image
             Glide.with(context)
-                    .load(imageUrl)
+                    .load(project.getOriginalImageUrl())
                     .placeholder(R.drawable.ic_gallery_empty)
                     .error(R.drawable.ic_gallery_empty)
                     .apply(new RequestOptions().transform(new CenterCrop()))
-                    .into(binding.imgThumbnail);
+                    .into(binding.imgOriginal);
+
+            // Load Generated Image
+            Glide.with(context)
+                    .load(project.getDesignedImageUrl())
+                    .placeholder(R.drawable.ic_gallery_empty)
+                    .error(R.drawable.ic_gallery_empty)
+                    .apply(new RequestOptions().transform(new CenterCrop()))
+                    .into(binding.imgGenerated);
 
             // Bind project ID/Name
             String designId = project.getDesignId();
@@ -153,6 +157,12 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onItemClick(project);
+                }
+            });
+
+            binding.btnDelete.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onDeleteClick(project);
                 }
             });
         }

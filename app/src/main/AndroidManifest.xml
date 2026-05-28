@@ -39,13 +39,13 @@
         <activity
             android:name=".features.history.ui.ProjectDetailActivity"
             android:exported="false"
-            android:theme="@style/Theme.Revroom"
+            android:theme="@style/Theme.Revroom.Legacy"
             android:label="Project Details" />
 
         <activity
             android:name=".features.history.ui.ResultActivity"
             android:exported="false"
-            android:theme="@style/Theme.Revroom"
+            android:theme="@style/Theme.Revroom.Legacy"
             android:label="Design Preview" />
 
         <provider
