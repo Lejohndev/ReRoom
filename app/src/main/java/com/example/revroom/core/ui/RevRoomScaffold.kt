@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -62,12 +63,13 @@ fun StudioScaffold(
     onExterior: () -> Unit,
     onChat: () -> Unit,
     onGallery: () -> Unit,
+    horizontalPadding: Dp = 18.dp,
     content: @Composable () -> Unit
 ) {
     Column(
         modifier = modifier
             .background(StudioBackground)
-            .padding(horizontal = 18.dp)
+            .padding(horizontal = horizontalPadding)
     ) {
         Box(
             modifier = Modifier
@@ -135,7 +137,15 @@ private fun BottomBarItem(
             .fillMaxWidth()
             .fillMaxHeight()
             .clip(shape)
-            .background(if (selected) StudioGradient else Brush.horizontalGradient(listOf(Color(0xFFFBFBFC), Color(0xFFFBFBFC))))
+            .background(
+                if (selected) StudioGradient else Brush.horizontalGradient(
+                    listOf(
+                        Color(
+                            0xFFFBFBFC
+                        ), Color(0xFFFBFBFC)
+                    )
+                )
+            )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -247,7 +257,14 @@ private fun StepDot(step: Int, currentStep: Int) {
         modifier = Modifier
             .size(28.dp)
             .clip(CircleShape)
-            .background(if (isCurrent || isDone) StudioGradient else Brush.horizontalGradient(listOf(Color(0xFFE1E4E8), Color(0xFFE1E4E8)))),
+            .background(
+                if (isCurrent || isDone) StudioGradient else Brush.horizontalGradient(
+                    listOf(
+                        Color(0xFFE1E4E8),
+                        Color(0xFFE1E4E8)
+                    )
+                )
+            ),
         contentAlignment = Alignment.Center
     ) {
         if (isDone) {

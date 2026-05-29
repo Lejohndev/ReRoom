@@ -56,6 +56,7 @@ fun DesignHomeScreen(
 ) {
     StudioScaffold(
         selectedTab = selectedTab,
+        horizontalPadding = 8.dp,
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding(),
@@ -173,7 +174,7 @@ private fun FeatureCard(
                 .padding(12.dp)
                 .clip(RoundedCornerShape(9.dp))
                 .background(Color(0xFF3CBF95))
-                .padding(horizontal = 11.dp, vertical = 5.dp)
+                .padding(horizontal = 11.dp, vertical = 0.dp)
         ) {
             Text(text = feature.badge, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
         }
