@@ -1,7 +1,6 @@
 package com.example.revroom.data.repository
 
 import android.content.Context
-import android.net.Uri
 import android.webkit.MimeTypeMap
 import com.example.revroom.core.network.ApiClient
 import com.example.revroom.core.utils.ImageCompressor
@@ -27,7 +26,7 @@ class DesignRepository(
     private val context: Context,
     private val designApi: DesignApi = ApiClient.designApi,
     private val authApi: AuthApi = ApiClient.authApi,
-    private val userIdProvider: LocalUserIdProvider = LocalUserIdProvider(context)
+    private val userIdProvider: LocalUserIdProvider = LocalUserIdProvider(context),
 ) {
     private var registeredUserId: String? = null
 
@@ -89,7 +88,7 @@ class DesignRepository(
             Result.success(block())
         } catch (error: HttpException) {
             Result.failure(DesignRepositoryException(parseHttpError(error)))
-        } catch (error: IOException) {
+        } catch (_: IOException) {
             Result.failure(DesignRepositoryException("Không thể kết nối máy chủ."))
         } catch (error: Exception) {
             Result.failure(DesignRepositoryException(error.message ?: "Đã có lỗi xảy ra."))

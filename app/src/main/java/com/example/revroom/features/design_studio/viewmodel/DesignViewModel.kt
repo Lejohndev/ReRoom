@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class DesignViewModel(
-    private val repository: DesignRepository
+    private val repository: DesignRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DesignUiState())
     val uiState: StateFlow<DesignUiState> = _uiState.asStateFlow()
@@ -146,7 +146,7 @@ class DesignViewModel(
         val imageUri = currentState.selectedImageUri
         val styleId = currentState.selectedStyle?.toIntOrNull()
 
-        if (imageUri == null || styleId == null || (currentState.designMode == DesignMode.Interior && currentState.selectedRoomType == null)) {
+        if (imageUri == null || styleId == null || (currentState.designMode == DesignMode.Interior && (currentState.selectedRoomType == null))) {
             _uiState.value = currentState.copy(
                 phase = DesignPhase.Failed,
                 errorMessage = "Please choose a photo, room type, and style."

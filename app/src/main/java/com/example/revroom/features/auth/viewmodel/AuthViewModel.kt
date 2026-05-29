@@ -31,6 +31,9 @@ class AuthViewModel : ViewModel() {
     var avatarUrl by mutableStateOf<String?>(null)
         private set
 
+    var userName by mutableStateOf<String?>(null)
+        private set
+
     // --- CÁC HÀM XỬ LÝ LOGIC ---
 
     fun onImageSelected(uri: Uri?) {
@@ -60,6 +63,7 @@ class AuthViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     val profile = response.body()
                     if (profile != null) {
+                        userName = profile.name
                         val rawFileName = profile.avatarUrl
                         if (!rawFileName.isNullOrEmpty()) {
                             avatarUrl = "${BuildConfig.API_BASE_URL}uploads/$rawFileName"
@@ -69,6 +73,22 @@ class AuthViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e("API_TEST", "Lỗi kéo Profile: ${e.message}")
+            }
+        }
+    }
+
+    fun updateUserProfile(userId: String, name: String) {
+        viewModelScope.launch {
+            isUploading = true
+            try {
+                val response = ApiClient.authApi.registerDevice(RegisterDeviceRequest(userId, name))
+                if (response.isSuccessful) {
+                    loadUserProfile(userId)
+                }
+            } catch (e: Exception) {
+                Log.e("API_TEST", "Lỗi update: ${e.message}")
+            } finally {
+                isUploading = false
             }
         }
     }
