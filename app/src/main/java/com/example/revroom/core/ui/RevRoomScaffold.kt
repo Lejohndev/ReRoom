@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -62,12 +63,13 @@ fun StudioScaffold(
     onExterior: () -> Unit,
     onChat: () -> Unit,
     onGallery: () -> Unit,
+    horizontalPadding: Dp = 18.dp,
     content: @Composable () -> Unit
 ) {
     Column(
         modifier = modifier
             .background(StudioBackground)
-            .padding(horizontal = 18.dp)
+            .padding(horizontal = horizontalPadding)
     ) {
         Box(
             modifier = Modifier
@@ -99,17 +101,17 @@ fun StudioBottomBar(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 14.dp),
+            .padding(start = 6.dp, end = 6.dp, bottom = 8.dp),
         color = Color.White,
-        shape = RoundedCornerShape(14.dp),
-        shadowElevation = 4.dp
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 12.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(58.dp)
-                .padding(5.dp),
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                .height(82.dp)
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             BottomBarItem("Interior", Icons.Outlined.Home, selectedTab == StudioTab.Interior, onInterior, Modifier.weight(1f))
             BottomBarItem("Exterior", Icons.Outlined.Landscape, selectedTab == StudioTab.Exterior, onExterior, Modifier.weight(1f))
@@ -127,24 +129,37 @@ private fun BottomBarItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(16.dp)
     val color = if (selected) Color.White else StudioMuted
 
     Box(
         modifier = modifier
+            .fillMaxWidth()
             .fillMaxHeight()
             .clip(shape)
-            .background(if (selected) StudioGradient else Brush.horizontalGradient(listOf(Color(0xFFF9FAFB), Color(0xFFF9FAFB))))
+            .background(
+                if (selected) StudioGradient else Brush.horizontalGradient(
+                    listOf(
+                        Color(
+                            0xFFFBFBFC
+                        ), Color(0xFFFBFBFC)
+                    )
+                )
+            )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(imageVector = icon, contentDescription = label, tint = color, modifier = Modifier.size(19.dp))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Icon(imageVector = icon, contentDescription = label, tint = color, modifier = Modifier.size(26.dp))
             Text(
                 text = label,
                 color = color,
-                fontSize = 10.sp,
-                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                fontSize = 12.sp,
+                lineHeight = 14.sp,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -242,7 +257,14 @@ private fun StepDot(step: Int, currentStep: Int) {
         modifier = Modifier
             .size(28.dp)
             .clip(CircleShape)
-            .background(if (isCurrent || isDone) StudioGradient else Brush.horizontalGradient(listOf(Color(0xFFE1E4E8), Color(0xFFE1E4E8)))),
+            .background(
+                if (isCurrent || isDone) StudioGradient else Brush.horizontalGradient(
+                    listOf(
+                        Color(0xFFE1E4E8),
+                        Color(0xFFE1E4E8)
+                    )
+                )
+            ),
         contentAlignment = Alignment.Center
     ) {
         if (isDone) {

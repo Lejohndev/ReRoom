@@ -1,7 +1,6 @@
 package com.example.revroom.data.repository
 
 import android.content.Context
-import android.net.Uri
 import android.webkit.MimeTypeMap
 import com.example.revroom.core.network.ApiClient
 import com.example.revroom.core.utils.ImageCompressor
@@ -14,6 +13,7 @@ import com.example.revroom.data.remote.RegisterDeviceRequest
 import com.example.revroom.features.design_studio.model.DesignJobStatus
 import com.example.revroom.features.design_studio.model.DesignRequest
 import com.example.revroom.features.design_studio.model.DesignResult
+import com.example.revroom.features.design_studio.model.DesignStyle
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -26,7 +26,7 @@ class DesignRepository(
     private val context: Context,
     private val designApi: DesignApi = ApiClient.designApi,
     private val authApi: AuthApi = ApiClient.authApi,
-    private val userIdProvider: LocalUserIdProvider = LocalUserIdProvider(context)
+    private val userIdProvider: LocalUserIdProvider = LocalUserIdProvider(context),
 ) {
     private var registeredUserId: String? = null
 
@@ -36,10 +36,28 @@ class DesignRepository(
             val imageBytes = ImageCompressor.readAndCompressIfNeeded(context, request.imageUri)
             val contentType = context.contentResolver.getType(request.imageUri) ?: "image/jpeg"
             val imagePart = createImagePart(imageBytes, contentType)
-            val roomTypePart = request.roomType.toRequestBody("text/plain".toMediaType())
-            val stylePart = request.style.toRequestBody("text/plain".toMediaType())
+            val styleIdPart = request.styleId.toString().toRequestBody("text/plain".toMediaType())
+            val roomTypePart = request.roomType
+                ?.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaType())
 
-            designApi.analyzeDesign(userId, imagePart, roomTypePart, stylePart).toDesignResult()
+            designApi.analyzeDesign(userId, imagePart, styleIdPart, roomTypePart).toDesignResult()
+        }
+    }
+
+    suspend fun getDesignStyles(): Result<List<DesignStyle>> {
+        return runApiCall {
+            designApi.getDesignStyles().map { style ->
+                DesignStyle(
+                    styleId = style.styleId,
+                    styleName = style.styleName,
+                    coreAesthetic = style.coreAesthetic,
+                    lightingOptions = style.lightingOptions,
+                    materialOptions = style.materialOptions,
+                    colorRuleOptions = style.colorRuleOptions,
+                    atmosphereOptions = style.atmosphereOptions
+                )
+            }
         }
     }
 
@@ -70,7 +88,7 @@ class DesignRepository(
             Result.success(block())
         } catch (error: HttpException) {
             Result.failure(DesignRepositoryException(parseHttpError(error)))
-        } catch (error: IOException) {
+        } catch (_: IOException) {
             Result.failure(DesignRepositoryException("Không thể kết nối máy chủ."))
         } catch (error: Exception) {
             Result.failure(DesignRepositoryException(error.message ?: "Đã có lỗi xảy ra."))

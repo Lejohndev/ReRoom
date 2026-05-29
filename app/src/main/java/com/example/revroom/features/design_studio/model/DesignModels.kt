@@ -4,8 +4,18 @@ import android.net.Uri
 
 data class DesignRequest(
     val imageUri: Uri,
-    val roomType: String,
-    val style: String
+    val styleId: Int,
+    val roomType: String? = null
+)
+
+data class DesignStyle(
+    val styleId: Int,
+    val styleName: String,
+    val coreAesthetic: String,
+    val lightingOptions: List<String>,
+    val materialOptions: List<String>,
+    val colorRuleOptions: List<String>,
+    val atmosphereOptions: List<String>
 )
 
 enum class DesignMode {

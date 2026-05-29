@@ -1,10 +1,11 @@
 package com.example.revroom.features.design_studio.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.revroom.core.ui.StudioScaffold
@@ -54,6 +56,7 @@ fun DesignHomeScreen(
 ) {
     StudioScaffold(
         selectedTab = selectedTab,
+        horizontalPadding = 8.dp,
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding(),
@@ -62,55 +65,52 @@ fun DesignHomeScreen(
         onChat = onChat,
         onGallery = onGallery
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(top = 16.dp, bottom = 18.dp)
-        ) {
-            Text(
-                text = title,
-                modifier = Modifier.fillMaxWidth(),
-                color = StudioText,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val featureCardHeight = calculateFeatureCardHeight(
+                availableHeight = maxHeight,
+                featureCount = features.size
             )
 
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp)
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 16.dp, bottom = 12.dp)
             ) {
-                chips.forEach { chip ->
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFFECEFF3))
-                            .padding(horizontal = 11.dp, vertical = 7.dp)
-                    ) {
-                        Text(
+                Text(
+                    text = title,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = StudioText,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    chips.forEach { chip ->
+                        CategoryChip(
                             text = chip,
-                            color = Color(0xFF6B7280),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1
+                            modifier = Modifier.weight(1f)
                         )
                     }
                 }
-            }
 
-            Column(
-                modifier = Modifier.padding(top = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                features.forEach { feature ->
-                    FeatureCard(
-                        feature = feature,
-                        onClick = { onFeatureClick(feature.id) }
-                    )
+                Column(
+                    modifier = Modifier.padding(top = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    features.forEach { feature ->
+                        FeatureCard(
+                            feature = feature,
+                            height = featureCardHeight,
+                            onClick = { onFeatureClick(feature.id) }
+                        )
+                    }
                 }
             }
         }
@@ -118,14 +118,43 @@ fun DesignHomeScreen(
 }
 
 @Composable
+private fun CategoryChip(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(56.dp)
+            .clip(RoundedCornerShape(15.dp))
+            .background(Color(0xFFF0F2F5))
+            .border(1.dp, Color(0xFFE0E4EA), RoundedCornerShape(15.dp))
+            .padding(horizontal = 8.dp, vertical = 7.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.fillMaxWidth(),
+            color = Color(0xFF4B5563),
+            fontSize = 11.sp,
+            lineHeight = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
 private fun FeatureCard(
     feature: DesignViewModel.DesignFeatureItem,
+    height: Dp,
     onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(142.dp)
+            .height(height)
             .clip(RoundedCornerShape(16.dp))
             .background(Brush.linearGradient(feature.colors))
             .clickable(onClick = onClick)
@@ -145,7 +174,7 @@ private fun FeatureCard(
                 .padding(12.dp)
                 .clip(RoundedCornerShape(9.dp))
                 .background(Color(0xFF3CBF95))
-                .padding(horizontal = 11.dp, vertical = 5.dp)
+                .padding(horizontal = 11.dp, vertical = 0.dp)
         ) {
             Text(text = feature.badge, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
         }
@@ -190,6 +219,20 @@ private fun FeatureCard(
             )
         }
     }
+}
+
+private fun calculateFeatureCardHeight(
+    availableHeight: Dp,
+    featureCount: Int
+): Dp {
+    if (featureCount <= 0) {
+        return 156.dp
+    }
+
+    val fixedContentHeight = 16.dp + 30.dp + 12.dp + 56.dp + 14.dp + 12.dp
+    val interCardSpacing = 12.dp * (featureCount - 1)
+    val availableForCards = availableHeight - fixedContentHeight - interCardSpacing
+    return (availableForCards / featureCount).coerceIn(156.dp, 192.dp)
 }
 
 @Preview(showBackground = true)
@@ -238,6 +281,7 @@ fun FeatureCardPreview() {
                     badge = "Before",
                     colors = listOf(Color(0xFFE8E2D8), Color(0xFF75675B), Color(0xFF181818))
                 ),
+                height = 176.dp,
                 onClick = {}
             )
         }

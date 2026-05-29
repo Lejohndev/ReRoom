@@ -3,7 +3,6 @@ package com.example.revroom.features.auth.viewmodel
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,7 +12,6 @@ import com.example.revroom.BuildConfig
 import com.example.revroom.core.network.ApiClient
 import com.example.revroom.core.utils.FileUtils
 import com.example.revroom.data.remote.RegisterDeviceRequest
-import com.example.revroom.data.remote.UpdateNameRequest
 import com.example.revroom.data.local.UserManager
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -37,6 +35,7 @@ class AuthViewModel : ViewModel() {
         private set
 
     // --- CÁC HÀM XỬ LÝ LOGIC ---
+
     fun onImageSelected(uri: Uri?) {
         selectedImageUri = uri
     }
@@ -47,8 +46,7 @@ class AuthViewModel : ViewModel() {
                 val response = ApiClient.authApi.registerDevice(RegisterDeviceRequest(userId))
                 if (response.isSuccessful) {
                     Log.d("API_TEST", "Thành công! Đã bắn ID: $userId lên C#")
-                    // NẾU DÒNG NÀY VẪN BÁO ĐỎ THÌ TẠM THỜI COMMENT NÓ LẠI NHÉ (Thêm // ở đầu dòng)
-                    // userManager.isRegisteredOnServer = true
+                    userManager.isRegisteredOnServer = true
                 } else {
                     Log.e("API_TEST", "Lỗi từ C#: ${response.code()}")
                 }
@@ -69,6 +67,7 @@ class AuthViewModel : ViewModel() {
                         val rawFileName = profile.avatarUrl
                         if (!rawFileName.isNullOrEmpty()) {
                             avatarUrl = "${BuildConfig.API_BASE_URL}uploads/$rawFileName"
+                            Log.d("API_TEST", "Lấy ảnh thành công: $avatarUrl")
                         }
                     }
                 }
@@ -78,14 +77,31 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    fun updateUserProfile(userId: String, name: String) {
+        viewModelScope.launch {
+            isUploading = true
+            try {
+                val response = ApiClient.authApi.registerDevice(RegisterDeviceRequest(userId, name))
+                if (response.isSuccessful) {
+                    loadUserProfile(userId)
+                }
+            } catch (e: Exception) {
+                Log.e("API_TEST", "Lỗi update: ${e.message}")
+            } finally {
+                isUploading = false
+            }
+        }
+    }
+
     fun uploadImage(context: Context, userId: String) {
         val uri = selectedImageUri ?: return
+
         viewModelScope.launch {
             isUploading = true
             try {
                 val file = FileUtils.uriToFile(context, uri)
                 if (file == null) {
-                    isUploading = false
+                    Log.e("API_TEST", "Lỗi: Không đọc được file ảnh!")
                     return@launch
                 }
 
@@ -94,36 +110,17 @@ class AuthViewModel : ViewModel() {
                 val userIdBody = userId.toRequestBody("text/plain".toMediaTypeOrNull())
 
                 val response = ApiClient.authApi.uploadAvatar(userIdBody, body)
+
                 if (response.isSuccessful) {
+                    Log.d("API_TEST", "Thành công! Đã đẩy ảnh lên C#")
                     selectedImageUri = null
                     loadUserProfile(userId)
-                }
-            } catch (e: Exception) {
-                Log.e("API_TEST", "Sập mạng khi up ảnh: ${e.message}")
-            } finally {
-                isUploading = false
-            }
-        }
-    }
-
-    fun updateUserProfile(context: Context, userId: String, newName: String) {
-        viewModelScope.launch {
-            isUploading = true
-            try {
-                val response = ApiClient.authApi.updateName(UpdateNameRequest(userId, newName))
-                if (response.isSuccessful) {
-                    userName = newName
-                    if (selectedImageUri != null) {
-                        uploadImage(context, userId)
-                    } else {
-                        isUploading = false
-                        Toast.makeText(context, "Cập nhật Profile thành công!", Toast.LENGTH_SHORT).show()
-                    }
                 } else {
-                    isUploading = false
-                    Toast.makeText(context, "Lỗi cập nhật tên!", Toast.LENGTH_SHORT).show()
+                    Log.e("API_TEST", "Lỗi C# trả về: ${response.code()}")
                 }
             } catch (e: Exception) {
+                Log.e("API_TEST", "Sập mạng: ${e.message}")
+            } finally {
                 isUploading = false
             }
         }

@@ -156,7 +156,14 @@ fun SettingsScreen(
             // --- NÚT LƯU THAY ĐỔI (Chỉ hiện khi có sửa đổi tên hoặc ảnh mới) ---
             if (shouldShowSaveButton) {
                 Button(
-                    onClick = { authViewModel.updateUserProfile(context, userId, userNameInput) },
+                    onClick = { 
+                        // Nếu có ảnh mới chọn, upload ảnh. Nếu không, chỉ update profile
+                        if (authViewModel.selectedImageUri != null) {
+                            authViewModel.uploadImage(context, userId)
+                        } else {
+                            authViewModel.updateUserProfile(userId, userNameInput)
+                        }
+                    },
                     enabled = !authViewModel.isUploading,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C63FF))
