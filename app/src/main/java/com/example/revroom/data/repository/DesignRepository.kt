@@ -52,11 +52,11 @@ class DesignRepository(
                 DesignStyle(
                     styleId = style.styleId,
                     styleName = style.styleName,
-                    coreAesthetic = style.coreAesthetic,
-                    lightingOptions = style.lightingOptions,
-                    materialOptions = style.materialOptions,
-                    colorRuleOptions = style.colorRuleOptions,
-                    atmosphereOptions = style.atmosphereOptions
+                    coreAesthetic = style.coreAesthetic ?: "",
+                    lightingOptions = style.lightingOptions ?: emptyList(),
+                    materialOptions = style.materialOptions ?: emptyList(),
+                    colorRuleOptions = style.colorRuleOptions ?: emptyList(),
+                    atmosphereOptions = style.atmosphereOptions ?: emptyList()
                 )
             }
         }

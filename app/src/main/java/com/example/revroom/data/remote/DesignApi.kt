@@ -38,11 +38,11 @@ data class DesignResponse(
 data class DesignStyleResponse(
     val styleId: Int,
     val styleName: String,
-    val coreAesthetic: String,
-    val lightingOptions: List<String>,
-    val materialOptions: List<String>,
-    val colorRuleOptions: List<String>,
-    val atmosphereOptions: List<String>
+    val coreAesthetic: String? = null,
+    val lightingOptions: List<String>? = emptyList(),
+    val materialOptions: List<String>? = emptyList(),
+    val colorRuleOptions: List<String>? = emptyList(),
+    val atmosphereOptions: List<String>? = emptyList()
 )
 
 data class DesignStatusResponse(
