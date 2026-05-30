@@ -29,6 +29,9 @@ object ApiClient {
             .build()
     }
 
+    val retrofitInstance: Retrofit
+        get() = retrofit
+
     val designApi: DesignApi by lazy {
         retrofit.create(DesignApi::class.java)
     }

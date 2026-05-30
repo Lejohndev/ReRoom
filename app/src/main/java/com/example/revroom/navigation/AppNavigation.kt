@@ -19,7 +19,10 @@ import com.example.revroom.features.design_studio.ui.RoomTypeScreen
 import com.example.revroom.features.design_studio.ui.StyleScreen
 import com.example.revroom.features.design_studio.ui.UploadPhotoScreen
 import com.example.revroom.features.design_studio.viewmodel.DesignViewModel
+import android.content.Intent
+import com.example.revroom.features.history.ui.HistoryActivity
 import com.example.revroom.features.history.ui.HistoryScreen
+import com.example.revroom.features.history.ui.ProjectDetailActivity
 import com.example.revroom.data.local.UserManager // Nhớ Alt+Enter import nếu thiếu
 import com.example.revroom.features.auth.ui.SettingsScreen
 
@@ -193,7 +196,17 @@ fun AppNavigation() {
                 onExterior = ::goExterior,
                 onChat = ::goChat,
                 onGallery = ::goGallery,
-                onProfileClick = { navController.navigate(Route.SETTINGS) }
+                onProfileClick = { navController.navigate(Route.SETTINGS) },
+                onProjectClick = { project ->
+                    val intent = Intent(context, ProjectDetailActivity::class.java).apply {
+                        putExtra(HistoryActivity.EXTRA_DESIGN_ID, project.designId)
+                        putExtra(HistoryActivity.EXTRA_ORIGINAL_IMAGE, project.originalImageUrl)
+                        putExtra(HistoryActivity.EXTRA_DESIGNED_IMAGE, project.designedImageUrl)
+                        putExtra(HistoryActivity.EXTRA_STATUS, project.status)
+                        putExtra(HistoryActivity.EXTRA_CREATED_AT, project.createdAt)
+                    }
+                    context.startActivity(intent)
+                }
             )
         }
         composable(Route.SETTINGS) {
