@@ -37,6 +37,7 @@ interface DesignApi {
 
     @retrofit2.http.DELETE("api/design/{designId}")
     suspend fun deleteDesign(
+        @Header("user-id") userId: String,
         @Path("designId") designId: String
     ): retrofit2.Response<Unit>
 }

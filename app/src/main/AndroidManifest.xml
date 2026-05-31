@@ -30,11 +30,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".features.history.ui.HistoryActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Revroom"
-            android:label="My Projects" />
 
         <activity
             android:name=".features.history.ui.ProjectDetailActivity"

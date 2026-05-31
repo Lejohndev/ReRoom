@@ -36,11 +36,11 @@ class ProjectDetailActivity : AppCompatActivity() {
 
         // Read intent extras
         intent?.let {
-            designId = it.getStringExtra(HistoryActivity.EXTRA_DESIGN_ID)
-            originalImageUrl = it.getStringExtra(HistoryActivity.EXTRA_ORIGINAL_IMAGE)
-            designedImageUrl = it.getStringExtra(HistoryActivity.EXTRA_DESIGNED_IMAGE)
-            status = it.getStringExtra(HistoryActivity.EXTRA_STATUS)
-            createdAt = it.getStringExtra(HistoryActivity.EXTRA_CREATED_AT)
+            designId = it.getStringExtra(EXTRA_DESIGN_ID)
+            originalImageUrl = it.getStringExtra(EXTRA_ORIGINAL_IMAGE)
+            designedImageUrl = it.getStringExtra(EXTRA_DESIGNED_IMAGE)
+            status = it.getStringExtra(EXTRA_STATUS)
+            createdAt = it.getStringExtra(EXTRA_CREATED_AT)
         }
 
         setupViews()
@@ -128,7 +128,7 @@ class ProjectDetailActivity : AppCompatActivity() {
         viewModel.deleteSuccess.observe(this) { success ->
             if (success) {
                 Toast.makeText(this, "Project deleted successfully", Toast.LENGTH_SHORT).show()
-                // Set the result back to HistoryActivity so it can remove this project from its local list
+                // Set the result back to HistoryScreen so it can remove this project from its local list
                 val resultIntent = Intent().apply {
                     putExtra(EXTRA_DELETED_ID, designId)
                 }
@@ -147,14 +147,19 @@ class ProjectDetailActivity : AppCompatActivity() {
 
     private fun navigateToResult() {
         val intent = Intent(this, ResultActivity::class.java).apply {
-            putExtra(HistoryActivity.EXTRA_DESIGN_ID, designId)
-            putExtra(HistoryActivity.EXTRA_DESIGNED_IMAGE, designedImageUrl ?: originalImageUrl)
-            putExtra(HistoryActivity.EXTRA_ORIGINAL_IMAGE, originalImageUrl)
+            putExtra(EXTRA_DESIGN_ID, designId)
+            putExtra(EXTRA_DESIGNED_IMAGE, designedImageUrl ?: originalImageUrl)
+            putExtra(EXTRA_ORIGINAL_IMAGE, originalImageUrl)
         }
         startActivity(intent)
     }
 
     companion object {
         const val EXTRA_DELETED_ID = "extra_deleted_id"
+        const val EXTRA_DESIGN_ID = "extra_design_id"
+        const val EXTRA_ORIGINAL_IMAGE = "extra_original_image"
+        const val EXTRA_DESIGNED_IMAGE = "extra_designed_image"
+        const val EXTRA_STATUS = "extra_status"
+        const val EXTRA_CREATED_AT = "extra_created_at"
     }
 }

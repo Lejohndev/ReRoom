@@ -1,5 +1,8 @@
 package com.example.revroom.features.history.ui
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -46,9 +49,21 @@ fun HistoryScreen(
     onChat: () -> Unit,
     onGallery: () -> Unit,
     onProfileClick: () -> Unit,
-    onProjectClick: (ProjectModel) -> Unit, // Add this parameter
     viewModel: HistoryViewModel = viewModel(factory = HistoryViewModel.Factory(LocalContext.current))
 ) {
+    val context = LocalContext.current
+    
+    val detailLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val deletedId = result.data?.getStringExtra(ProjectDetailActivity.EXTRA_DELETED_ID)
+            if (deletedId != null) {
+                viewModel.removeProjectFromList(deletedId)
+            }
+        }
+    }
+
     // Observe ViewModel states
     val projects by viewModel.projects.observeAsState(initial = emptyList())
     val isLoading by viewModel.isLoading.observeAsState(initial = false)
@@ -119,12 +134,20 @@ fun HistoryScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(bottom = 100.dp)
                     ) {
-                        // items(items = ...) giúp trình biên dịch không bị nhầm lẫn
                         items(items = projects) { project ->
                             ProjectItem(
                                 project = project,
                                 onDelete = { projectToDelete = project },
-                                onClick = { onProjectClick(project) } // Pass the click handler
+                                onClick = {
+                                    val intent = Intent(context, ProjectDetailActivity::class.java).apply {
+                                        putExtra(ProjectDetailActivity.EXTRA_DESIGN_ID, project.designId)
+                                        putExtra(ProjectDetailActivity.EXTRA_ORIGINAL_IMAGE, project.originalImageUrl)
+                                        putExtra(ProjectDetailActivity.EXTRA_DESIGNED_IMAGE, project.designedImageUrl)
+                                        putExtra(ProjectDetailActivity.EXTRA_STATUS, project.status)
+                                        putExtra(ProjectDetailActivity.EXTRA_CREATED_AT, project.createdAt)
+                                    }
+                                    detailLauncher.launch(intent)
+                                }
                             )
                         }
                     }
@@ -199,7 +222,7 @@ fun ProjectItem(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.Delete,
+                    imageVector = Icons.Default.Delete,
                     contentDescription = "Delete",
                     tint = Color.White,
                     modifier = Modifier.size(18.dp)

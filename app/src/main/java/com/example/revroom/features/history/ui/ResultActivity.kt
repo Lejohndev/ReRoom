@@ -16,7 +16,7 @@ class ResultActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Read design image URL from intent
-        val designedImageUrl = intent?.getStringExtra(HistoryActivity.EXTRA_DESIGNED_IMAGE)
+        val designedImageUrl = intent?.getStringExtra(ProjectDetailActivity.EXTRA_DESIGNED_IMAGE)
 
         // Load the full preview image with Glide
         Glide.with(this)

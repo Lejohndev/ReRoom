@@ -22,6 +22,12 @@ class HistoryViewModel(private val context: Context) : ViewModel() {
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
+    private val _isDeleting = MutableLiveData<Boolean>()
+    val isDeleting: LiveData<Boolean> = _isDeleting
+
+    private val _deleteError = MutableLiveData<String?>()
+    val deleteError: LiveData<String?> = _deleteError
+
     private val _deleteSuccess = MutableLiveData<Boolean>()
     val deleteSuccess: LiveData<Boolean> = _deleteSuccess
 
@@ -67,22 +73,24 @@ class HistoryViewModel(private val context: Context) : ViewModel() {
     }
 
     fun deleteProject(designId: String) {
-        _isLoading.value = true
+        _isDeleting.value = true
+        _deleteError.value = null
         viewModelScope.launch {
             try {
-                val response = ApiClient.designApi.deleteDesign(designId)
+                val userId = userIdProvider.getOrCreateUserId()
+                val response = ApiClient.designApi.deleteDesign(userId, designId)
                 if (response.isSuccessful) {
                     val currentList = _projects.value?.toMutableList() ?: mutableListOf<ProjectModel>()
                     currentList.removeAll { it.designId == designId }
                     _projects.value = currentList
                     _deleteSuccess.value = true
                 } else {
-                    _error.value = "Delete failed: ${response.code()}"
+                    _deleteError.value = "Delete failed: ${response.code()}"
                 }
             } catch (e: Exception) {
-                _error.value = "Delete error: ${e.message}"
+                _deleteError.value = "Delete error: ${e.message}"
             } finally {
-                _isLoading.value = false
+                _isDeleting.value = false
             }
         }
     }
