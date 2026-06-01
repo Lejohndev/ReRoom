@@ -11,7 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.revroom.core.ui.StudioTab
-import com.example.revroom.features.chat.ui.ChatPlaceholderScreen
+import com.example.revroom.features.chat.ui.ChatScreen
 import com.example.revroom.features.design_studio.model.DesignMode
 import com.example.revroom.features.design_studio.ui.DesignHomeScreen
 import com.example.revroom.features.design_studio.ui.ProcessingResultScreen
@@ -19,7 +19,9 @@ import com.example.revroom.features.design_studio.ui.RoomTypeScreen
 import com.example.revroom.features.design_studio.ui.StyleScreen
 import com.example.revroom.features.design_studio.ui.UploadPhotoScreen
 import com.example.revroom.features.design_studio.viewmodel.DesignViewModel
+import android.content.Intent
 import com.example.revroom.features.history.ui.HistoryScreen
+import com.example.revroom.features.history.ui.ProjectDetailActivity
 import com.example.revroom.data.local.UserManager // Nhớ Alt+Enter import nếu thiếu
 import com.example.revroom.features.auth.ui.SettingsScreen
 
@@ -179,7 +181,7 @@ fun AppNavigation() {
         }
 
         composable(Route.CHAT) {
-            ChatPlaceholderScreen(
+            ChatScreen(
                 onInterior = ::goInterior,
                 onExterior = ::goExterior,
                 onChat = ::goChat,

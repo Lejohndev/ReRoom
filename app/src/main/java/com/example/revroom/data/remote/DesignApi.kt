@@ -27,7 +27,41 @@ interface DesignApi {
         @Header("user-id") userId: String,
         @Path("designId") designId: String
     ): DesignStatusResponse
+
+    @GET("api/design/projects")
+    suspend fun getUserDesigns(
+        @Header("user-id") userId: String,
+        @retrofit2.http.Query("page") page: Int,
+        @retrofit2.http.Query("pageSize") pageSize: Int
+    ): retrofit2.Response<ProjectHistoryResponse>
+
+    @retrofit2.http.DELETE("api/design/{designId}")
+    suspend fun deleteDesign(
+        @Header("user-id") userId: String,
+        @Path("designId") designId: String
+    ): retrofit2.Response<Unit>
+
+    @Multipart
+    @POST("api/design/chat")
+    suspend fun chat(
+        @Header("user-id") userId: String,
+        @Part("Prompt") message: String,
+        @Part image: MultipartBody.Part? = null
+    ): ChatResponse
 }
+
+data class ChatResponse(
+    val message: String? = null,
+    val designId: String? = null,
+    val imageUrl: String? = null
+)
+
+data class ProjectHistoryResponse(
+    val data: List<com.example.revroom.features.history.model.ProjectModel>,
+    val totalCount: Int,
+    val page: Int,
+    val totalPages: Int
+)
 
 data class DesignResponse(
     val designId: String,
