@@ -16,7 +16,8 @@ interface DesignApi {
         @Header("user-id") userId: String,
         @Part image: MultipartBody.Part,
         @Part("styleId") styleId: RequestBody,
-        @Part("roomType") roomType: RequestBody?
+        @Part("roomType") roomType: RequestBody?,
+        @Part("featureId") featureId: RequestBody?
     ): DesignResponse
 
     @GET("api/design/styles")

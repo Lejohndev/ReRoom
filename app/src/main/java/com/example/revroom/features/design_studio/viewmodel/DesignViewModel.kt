@@ -162,7 +162,8 @@ class DesignViewModel(
                 DesignRequest(
                     imageUri = imageUri,
                     styleId = styleId,
-                    roomType = currentState.selectedRoomType
+                    roomType = currentState.selectedRoomType,
+                    featureId = currentState.selectedFeature ?: "interior_design"
                 )
             )
                 .onSuccess { response ->
