@@ -49,6 +49,7 @@ fun HistoryScreen(
     onChat: () -> Unit,
     onGallery: () -> Unit,
     onProfileClick: () -> Unit,
+    showBottomBar: Boolean = true,
     viewModel: HistoryViewModel = viewModel(factory = HistoryViewModel.Factory(LocalContext.current))
 ) {
     val context = LocalContext.current
@@ -104,9 +105,14 @@ fun HistoryScreen(
         onInterior = onInterior,
         onExterior = onExterior,
         onChat = onChat,
-        onGallery = onGallery
+        onGallery = onGallery,
+        showBottomBar = showBottomBar
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 14.dp)
+        ) {
             TopTitleBar(
                 title = "My Projects",
                 trailing = {
@@ -123,6 +129,8 @@ fun HistoryScreen(
                 }
             )
 
+            Spacer(modifier = Modifier.height(12.dp))
+
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 if (projects.isEmpty() && !isLoading) {
                     EmptyStateView(error)
@@ -132,7 +140,7 @@ fun HistoryScreen(
                         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(bottom = 100.dp)
+                        contentPadding = PaddingValues(top = 2.dp, bottom = 100.dp)
                     ) {
                         items(items = projects) { project ->
                             ProjectItem(

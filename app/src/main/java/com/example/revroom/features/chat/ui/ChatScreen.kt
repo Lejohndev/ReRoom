@@ -44,6 +44,7 @@ fun ChatScreen(
     onExterior: () -> Unit,
     onChat: () -> Unit,
     onGallery: () -> Unit,
+    showBottomBar: Boolean = true,
     viewModel: ChatViewModel = viewModel(factory = ChatViewModel.Factory(LocalContext.current))
 ) {
     val context = LocalContext.current
@@ -76,9 +77,14 @@ fun ChatScreen(
         onInterior = onInterior,
         onExterior = onExterior,
         onChat = onChat,
-        onGallery = onGallery
+        onGallery = onGallery,
+        showBottomBar = showBottomBar
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = ChatBottomNavPadding)
+        ) {
             // Header
             Row(
                 modifier = Modifier
@@ -332,6 +338,8 @@ fun ChatBubble(message: ChatMessage) {
         }
     }
 }
+
+private val ChatBottomNavPadding = 104.dp
 
 @Preview(showBackground = true)
 @Composable

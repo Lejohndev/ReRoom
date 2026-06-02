@@ -48,6 +48,7 @@ import com.example.revroom.features.design_studio.viewmodel.DesignViewModel
 @Composable
 fun StyleScreen(
     title: String,
+    stepCaption: String = "Choose your style",
     selectedTab: StudioTab,
     selectedStyle: String?,
     styles: List<DesignViewModel.SelectionItem>,
@@ -57,7 +58,8 @@ fun StyleScreen(
     onInterior: () -> Unit,
     onExterior: () -> Unit,
     onChat: () -> Unit,
-    onGallery: () -> Unit
+    onGallery: () -> Unit,
+    showBottomBar: Boolean = true
 ) {
     StudioScaffold(
         selectedTab = selectedTab,
@@ -67,7 +69,8 @@ fun StyleScreen(
         onInterior = onInterior,
         onExterior = onExterior,
         onChat = onChat,
-        onGallery = onGallery
+        onGallery = onGallery,
+        showBottomBar = showBottomBar
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopTitleBar(
@@ -86,12 +89,12 @@ fun StyleScreen(
 
             StepProgress(
                 currentStep = 3,
-                caption = "Choose your style",
+                caption = stepCaption,
                 modifier = Modifier.padding(top = 6.dp)
             )
 
             Text(
-                text = "Choose style",
+                text = stepCaption,
                 modifier = Modifier.padding(top = 24.dp),
                 color = StudioGradientColor,
                 style = MaterialTheme.typography.headlineSmall,

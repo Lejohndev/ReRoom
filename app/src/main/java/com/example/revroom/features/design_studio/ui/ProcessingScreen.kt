@@ -52,6 +52,10 @@ import com.example.revroom.features.design_studio.components.FanSpinnerAnimation
 import com.example.revroom.features.design_studio.model.DesignMode
 import com.example.revroom.features.design_studio.model.DesignPhase
 import com.example.revroom.features.design_studio.model.DesignUiState
+import com.example.revroom.features.design_studio.model.selectedFeatureProcessingSubtitle
+import com.example.revroom.features.design_studio.model.selectedFeatureProcessingTitle
+import com.example.revroom.features.design_studio.model.selectedFeatureResultTitle
+import com.example.revroom.features.design_studio.model.selectedFeatureTitle
 import com.example.revroom.core.theme.RevroomTheme
 
 @Composable
@@ -64,12 +68,28 @@ fun ProcessingResultScreen(
     onInterior: () -> Unit,
     onExterior: () -> Unit,
     onChat: () -> Unit,
-    onGallery: () -> Unit
+    onGallery: () -> Unit,
+    showBottomBar: Boolean = true
 ) {
     var showExitDialog by remember { mutableStateOf(false) }
     val isProcessing = uiState.phase == DesignPhase.Uploading || uiState.phase == DesignPhase.Processing
     val selectedTab = if (uiState.designMode == DesignMode.Exterior) StudioTab.Exterior else StudioTab.Interior
-    val title = if (uiState.designMode == DesignMode.Exterior) "Exterior Design" else "Interior Design"
+    val title = if (uiState.designMode == DesignMode.Exterior) "Exterior Design" else uiState.selectedFeatureTitle
+    val processingCaption = if (uiState.designMode == DesignMode.Exterior) {
+        "Generating your design"
+    } else {
+        uiState.selectedFeatureProcessingSubtitle
+    }
+    val resultTitle = if (uiState.designMode == DesignMode.Exterior) {
+        "Your design is ready"
+    } else {
+        uiState.selectedFeatureResultTitle
+    }
+    val processingTitle = if (uiState.designMode == DesignMode.Exterior) {
+        "Creating your redesign..."
+    } else {
+        uiState.selectedFeatureProcessingTitle
+    }
 
     BackHandler(enabled = isProcessing) {
         showExitDialog = true
@@ -104,7 +124,8 @@ fun ProcessingResultScreen(
         onInterior = onInterior,
         onExterior = onExterior,
         onChat = onChat,
-        onGallery = onGallery
+        onGallery = onGallery,
+        showBottomBar = showBottomBar
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopTitleBar(
@@ -123,7 +144,7 @@ fun ProcessingResultScreen(
 
             StepProgress(
                 currentStep = 4,
-                caption = if (uiState.phase == DesignPhase.Completed) "Your design is ready" else "Generating your design",
+                caption = if (uiState.phase == DesignPhase.Completed) resultTitle else processingCaption,
                 modifier = Modifier.padding(top = 6.dp)
             )
 
@@ -131,9 +152,10 @@ fun ProcessingResultScreen(
                 when (uiState.phase) {
                     DesignPhase.Uploading,
                     DesignPhase.Processing,
-                    DesignPhase.Idle -> ProcessingContent()
+                    DesignPhase.Idle -> ProcessingContent(title = processingTitle)
 
                     DesignPhase.Completed -> CompletedContent(
+                        title = resultTitle,
                         originalImageUrl = uiState.originalImageUrl,
                         designedImageUrl = uiState.designedImageUrl,
                         onSaveToHistory = onSaveToHistory,
@@ -152,7 +174,7 @@ fun ProcessingResultScreen(
 }
 
 @Composable
-private fun ProcessingContent() {
+private fun ProcessingContent(title: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -163,7 +185,7 @@ private fun ProcessingContent() {
         FanSpinnerAnimation(modifier = Modifier.size(76.dp))
 
         Text(
-            text = "Creating your redesign...",
+            text = title,
             modifier = Modifier.padding(top = 28.dp),
             color = StudioText,
             style = MaterialTheme.typography.titleLarge,
@@ -184,6 +206,7 @@ private fun ProcessingContent() {
 
 @Composable
 private fun CompletedContent(
+    title: String,
     originalImageUrl: String?,
     designedImageUrl: String?,
     onSaveToHistory: () -> Unit,
@@ -197,7 +220,7 @@ private fun CompletedContent(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Text(
-            text = "Your redesign is ready",
+            text = title,
             color = StudioText,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold

@@ -51,6 +51,7 @@ import com.example.revroom.core.ui.TopTitleBar
 @Composable
 fun UploadPhotoScreen(
     title: String,
+    stepCaption: String = "Upload your room photo",
     selectedTab: StudioTab,
     selectedImageUri: Uri?,
     onImageSelected: (Uri?) -> Unit,
@@ -59,7 +60,8 @@ fun UploadPhotoScreen(
     onInterior: () -> Unit,
     onExterior: () -> Unit,
     onChat: () -> Unit,
-    onGallery: () -> Unit
+    onGallery: () -> Unit,
+    showBottomBar: Boolean = true
 ) {
     val photoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -76,7 +78,8 @@ fun UploadPhotoScreen(
         onInterior = onInterior,
         onExterior = onExterior,
         onChat = onChat,
-        onGallery = onGallery
+        onGallery = onGallery,
+        showBottomBar = showBottomBar
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopTitleBar(
@@ -95,7 +98,7 @@ fun UploadPhotoScreen(
 
             StepProgress(
                 currentStep = 1,
-                caption = "Upload your room photo",
+                caption = stepCaption,
                 modifier = Modifier.padding(top = 10.dp)
             )
 

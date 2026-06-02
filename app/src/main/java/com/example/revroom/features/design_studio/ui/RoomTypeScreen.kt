@@ -46,6 +46,8 @@ import com.example.revroom.features.design_studio.viewmodel.DesignViewModel
 
 @Composable
 fun RoomTypeScreen(
+    title: String = "Interior Design",
+    stepCaption: String = "What room is this?",
     selectedRoomType: String?,
     roomTypes: List<DesignViewModel.SelectionItem>,
     onRoomTypeSelected: (String) -> Unit,
@@ -54,7 +56,8 @@ fun RoomTypeScreen(
     onInterior: () -> Unit,
     onExterior: () -> Unit,
     onChat: () -> Unit,
-    onGallery: () -> Unit
+    onGallery: () -> Unit,
+    showBottomBar: Boolean = true
 ) {
     StudioScaffold(
         selectedTab = StudioTab.Interior,
@@ -64,11 +67,12 @@ fun RoomTypeScreen(
         onInterior = onInterior,
         onExterior = onExterior,
         onChat = onChat,
-        onGallery = onGallery
+        onGallery = onGallery,
+        showBottomBar = showBottomBar
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopTitleBar(
-                title = "Interior Design",
+                title = title,
                 modifier = Modifier.padding(top = 16.dp),
                 leading = {
                     IconButton(onClick = onBack) {
@@ -83,7 +87,7 @@ fun RoomTypeScreen(
 
             StepProgress(
                 currentStep = 2,
-                caption = "What room is this?",
+                caption = stepCaption,
                 modifier = Modifier.padding(top = 6.dp)
             )
 
