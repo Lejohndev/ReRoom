@@ -50,6 +50,7 @@ fun ChatScreen(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
+    var previewImageUri by remember { mutableStateOf<String?>(null) }
 
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -69,186 +70,215 @@ fun ChatScreen(
         }
     }
 
-    StudioScaffold(
-        selectedTab = StudioTab.Chat,
-        modifier = Modifier
-            .fillMaxSize()
-            .systemBarsPadding(),
-        onInterior = onInterior,
-        onExterior = onExterior,
-        onChat = onChat,
-        onGallery = onGallery,
-        showBottomBar = showBottomBar
-    ) {
-        Column(
+    Box(modifier = Modifier.fillMaxSize()) {
+        StudioScaffold(
+            selectedTab = StudioTab.Chat,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = ChatBottomNavPadding)
+                .systemBarsPadding(),
+            onInterior = onInterior,
+            onExterior = onExterior,
+            onChat = onChat,
+            onGallery = onGallery,
+            showBottomBar = showBottomBar
         ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Chat",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = StudioText
-                )
-                IconButton(
-                    onClick = { /* New Chat */ },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color(0xFFF3F4F6), RoundedCornerShape(10.dp))
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "New Chat", tint = StudioText)
-                }
-            }
-
-            // Messages
-            Box(modifier = Modifier.weight(1f)) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(uiState.messages) { message ->
-                        ChatBubble(message)
-                    }
-                    if (uiState.isLoading) {
-                        item {
-                            Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                FanSpinnerAnimation(modifier = Modifier.size(40.dp))
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Input Bar
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
+                    .fillMaxSize()
+                    .padding(bottom = ChatBottomNavPadding)
             ) {
-                // Image Preview khi được chọn
-                if (uiState.selectedImageUri != null) {
-                    Box(
+                // Header
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Chat",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = StudioText
+                    )
+                    IconButton(
+                        onClick = { /* New Chat */ },
                         modifier = Modifier
-                            .padding(bottom = 8.dp, start = 52.dp)
-                            .size(80.dp)
-                            .background(Color.White, RoundedCornerShape(14.dp))
-                            .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(14.dp))
-                            .padding(4.dp)
+                            .size(40.dp)
+                            .background(Color(0xFFF3F4F6), RoundedCornerShape(10.dp))
                     ) {
-                        AsyncImage(
-                            model = uiState.selectedImageUri,
-                            contentDescription = "Selected Image",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(RoundedCornerShape(10.dp)),
-                            contentScale = ContentScale.Crop
-                        )
-                        // Nút Close để hủy chọn ảnh
-                        Surface(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(2.dp)
-                                .size(20.dp)
-                                .clickable { viewModel.onImageSelected(null) },
-                            color = Color.Black.copy(alpha = 0.6f),
-                            shape = CircleShape
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Remove",
-                                tint = Color.White,
-                                modifier = Modifier.padding(4.dp)
-                            )
-                        }
+                        Icon(Icons.Default.Add, contentDescription = "New Chat", tint = StudioText)
                     }
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    IconButton(
-                        onClick = { imagePicker.launch("image/*") },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(Color(0xFFF3F4F6), CircleShape)
+                // Messages
+                Box(modifier = Modifier.weight(1f)) {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Icon(
-                            imageVector = if (uiState.selectedImageUri != null) Icons.Outlined.Image else Icons.Default.Add,
-                            contentDescription = "Attach",
-                            tint = if (uiState.selectedImageUri != null) StudioPurple else StudioMuted
-                        )
-                    }
-
-                    TextField(
-                        value = uiState.inputText,
-                        onValueChange = viewModel::onInputTextChanged,
-                        placeholder = {
-                            Text(
-                                "Ask me anything...",
-                                color = StudioMuted,
-                                fontSize = 14.sp
-                            )
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .heightIn(min = 44.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            cursorColor = StudioPurple
-                        ),
-                        shape = RoundedCornerShape(24.dp),
-                        trailingIcon = {
-                            Box(
-                                modifier = Modifier
-                                    .padding(end = 4.dp)
-                                    .size(32.dp)
-                                    .clip(CircleShape)
-                                    .then(
-                                        if (uiState.isLoading) {
-                                            Modifier.background(StudioMuted)
-                                        } else {
-                                            Modifier.background(StudioGradient)
-                                        }
-                                    )
-                                    .clickable(enabled = !uiState.isLoading) { viewModel.sendMessage() },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (uiState.isLoading) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        color = Color.White,
-                                        strokeWidth = 2.dp
-                                    )
-                                } else {
-                                    Icon(
-                                        Icons.Default.ArrowUpward,
-                                        contentDescription = "Send",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(18.dp)
-                                    )
+                        items(uiState.messages) { message ->
+                            ChatBubble(message, onImageClick = { url -> previewImageUri = url })
+                        }
+                        if (uiState.isLoading) {
+                            item {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.CenterStart
+                                ) {
+                                    FanSpinnerAnimation(modifier = Modifier.size(40.dp))
                                 }
                             }
                         }
-                    )
+                    }
+                }
+
+                // Input Bar
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                ) {
+                    // Image Preview khi được chọn
+                    if (uiState.selectedImageUri != null) {
+                        Box(
+                            modifier = Modifier
+                                .padding(bottom = 8.dp, start = 52.dp)
+                                .size(80.dp)
+                                .background(Color.White, RoundedCornerShape(14.dp))
+                                .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(14.dp))
+                                .padding(4.dp)
+                        ) {
+                            AsyncImage(
+                                model = uiState.selectedImageUri,
+                                contentDescription = "Selected Image",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(10.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                            // Nút Close để hủy chọn ảnh
+                            Surface(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(2.dp)
+                                    .size(20.dp)
+                                    .clickable { viewModel.onImageSelected(null) },
+                                color = Color.Black.copy(alpha = 0.6f),
+                                shape = CircleShape
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Remove",
+                                    tint = Color.White,
+                                    modifier = Modifier.padding(4.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        IconButton(
+                            onClick = { imagePicker.launch("image/*") },
+                            modifier = Modifier
+                                .size(44.dp)
+                                .background(Color(0xFFF3F4F6), CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = if (uiState.selectedImageUri != null) Icons.Outlined.Image else Icons.Default.Add,
+                                contentDescription = "Attach",
+                                tint = if (uiState.selectedImageUri != null) StudioPurple else StudioMuted
+                            )
+                        }
+
+                        TextField(
+                            value = uiState.inputText,
+                            onValueChange = viewModel::onInputTextChanged,
+                            placeholder = {
+                                Text(
+                                    "Design everything for you....",
+                                    color = StudioMuted,
+                                    fontSize = 14.sp
+                                )
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .heightIn(min = 44.dp),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                cursorColor = StudioPurple
+                            ),
+                            shape = RoundedCornerShape(24.dp),
+                            trailingIcon = {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(end = 4.dp)
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .then(
+                                            if (uiState.isLoading) {
+                                                Modifier.background(StudioMuted)
+                                            } else {
+                                                Modifier.background(StudioGradient)
+                                            }
+                                        )
+                                        .clickable(enabled = !uiState.isLoading) { viewModel.sendMessage() },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (uiState.isLoading) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(16.dp),
+                                            color = Color.White,
+                                            strokeWidth = 2.dp
+                                        )
+                                    } else {
+                                        Icon(
+                                            Icons.Default.ArrowUpward,
+                                            contentDescription = "Send",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Fullscreen Image Preview Overlay
+        if (previewImageUri != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.9f))
+                    .clickable { previewImageUri = null },
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = previewImageUri,
+                    contentDescription = "Preview",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
+                IconButton(
+                    onClick = { previewImageUri = null },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 48.dp, end = 16.dp)
+                        .background(Color.White.copy(alpha = 0.2f), CircleShape)
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
                 }
             }
         }
@@ -256,18 +286,23 @@ fun ChatScreen(
 }
 
 @Composable
-fun ChatBubble(message: ChatMessage) {
+fun ChatBubble(
+    message: ChatMessage,
+    onImageClick: (String) -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = if (message.isFromUser) Alignment.End else Alignment.Start
     ) {
         if (message.localImageUri != null || message.imageUrl != null) {
+            val imageSource = message.localImageUri?.toString() ?: message.imageUrl
             Box(
                 modifier = Modifier
                     .padding(bottom = 4.dp)
                     .width(240.dp)
                     .height(300.dp)
                     .clip(RoundedCornerShape(20.dp))
+                    .clickable { imageSource?.let { onImageClick(it) } }
             ) {
                 AsyncImage(
                     model = message.localImageUri ?: message.imageUrl,

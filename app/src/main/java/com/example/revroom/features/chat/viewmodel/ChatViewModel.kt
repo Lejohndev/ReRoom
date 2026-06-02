@@ -140,8 +140,13 @@ class ChatViewModel(
         _uiState.update { state ->
             val updatedMessages = state.messages.map { msg ->
                 if (msg.id == messageId) {
+                    val newText = when {
+                        errorText != null -> errorText
+                        imageUrl != null -> "Thiết kế của bạn đã hoàn thành!"
+                        else -> msg.text
+                    }
                     msg.copy(
-                        text = errorText ?: msg.text,
+                        text = newText,
                         imageUrl = imageUrl ?: msg.imageUrl,
                         isProcessing = false
                     )
