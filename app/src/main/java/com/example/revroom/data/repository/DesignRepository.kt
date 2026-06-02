@@ -41,8 +41,11 @@ class DesignRepository(
             val roomTypePart = request.roomType
                 ?.takeIf { it.isNotBlank() }
                 ?.toRequestBody("text/plain".toMediaType())
+            val featureIdPart = request.featureId
+                ?.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaType())
 
-            designApi.analyzeDesign(userId, imagePart, styleIdPart, roomTypePart).toDesignResult()
+            designApi.analyzeDesign(userId, imagePart, styleIdPart, roomTypePart, featureIdPart).toDesignResult()
         }
     }
 

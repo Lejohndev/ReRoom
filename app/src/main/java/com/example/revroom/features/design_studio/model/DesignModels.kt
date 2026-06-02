@@ -5,7 +5,8 @@ import android.net.Uri
 data class DesignRequest(
     val imageUri: Uri,
     val styleId: Int,
-    val roomType: String? = null
+    val roomType: String? = null,
+    val featureId: String? = null
 )
 
 data class DesignStyle(
