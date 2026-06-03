@@ -9,6 +9,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.revroom.R
 import com.example.revroom.core.utils.DateFormatter
@@ -31,10 +34,27 @@ class ProjectDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Kích hoạt chế độ hiển thị tràn viền (Edge-to-Edge)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        
         binding = ActivityProjectDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Read intent extras
+        // Xử lý Insets để tránh Notch đè lên Header và Navigation Bar đè lên Nút bấm
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            
+            // Đẩy Toolbar xuống dưới vùng Notch
+            binding.layoutAppBar.setPadding(0, systemBars.top, 0, 0)
+            
+            // Thêm khoảng trống phía dưới NestedScrollView để tránh bị thanh điều hướng che mất nút Delete
+            binding.nestedScrollView.setPadding(0, 0, 0, systemBars.bottom)
+
+            insets
+        }
+
+        // Đọc dữ liệu từ Intent
         intent?.let {
             designId = it.getStringExtra(EXTRA_DESIGN_ID)
             originalImageUrl = it.getStringExtra(EXTRA_ORIGINAL_IMAGE)
