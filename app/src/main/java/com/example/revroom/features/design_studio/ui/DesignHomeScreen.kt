@@ -27,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.example.revroom.core.ui.StudioScaffold
 import com.example.revroom.core.ui.StudioTab
 import com.example.revroom.core.ui.StudioText
+import com.example.revroom.features.design_studio.components.AutoBeforeAfterPreview
 import com.example.revroom.features.design_studio.viewmodel.DesignViewModel
 import com.example.revroom.core.theme.RevroomTheme
 
@@ -52,7 +52,8 @@ fun DesignHomeScreen(
     onInterior: () -> Unit,
     onExterior: () -> Unit,
     onChat: () -> Unit,
-    onGallery: () -> Unit
+    onGallery: () -> Unit,
+    showBottomBar: Boolean = true
 ) {
     StudioScaffold(
         selectedTab = selectedTab,
@@ -63,7 +64,8 @@ fun DesignHomeScreen(
         onInterior = onInterior,
         onExterior = onExterior,
         onChat = onChat,
-        onGallery = onGallery
+        onGallery = onGallery,
+        showBottomBar = showBottomBar
     ) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val featureCardHeight = calculateFeatureCardHeight(
@@ -156,28 +158,24 @@ private fun FeatureCard(
             .fillMaxWidth()
             .height(height)
             .clip(RoundedCornerShape(16.dp))
-            .background(Brush.linearGradient(feature.colors))
             .clickable(onClick = onClick)
     ) {
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color.Transparent, Color(0x66000000), Color(0xCC000000))
-                    )
-                )
+        AutoBeforeAfterPreview(
+            beforeImageRes = feature.beforeImageRes,
+            afterImageRes = feature.afterImageRes,
+            fallbackColors = feature.colors,
+            modifier = Modifier.matchParentSize()
         )
 
         Box(
             modifier = Modifier
-                .padding(12.dp)
-                .clip(RoundedCornerShape(9.dp))
-                .background(Color(0xFF3CBF95))
-                .padding(horizontal = 11.dp, vertical = 0.dp)
-        ) {
-            Text(text = feature.badge, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-        }
+                .matchParentSize()
+                .background(
+                    androidx.compose.ui.graphics.Brush.verticalGradient(
+                        listOf(Color.Transparent, Color(0x66000000), Color(0xCC000000))
+                    )
+                )
+        )
 
         Column(
             modifier = Modifier
@@ -247,14 +245,12 @@ fun DesignHomeScreenPreview() {
                     id = "interior_design",
                     title = "Interior Design",
                     subtitle = "Redesign your interior space",
-                    badge = "Before",
                     colors = listOf(Color(0xFFE8E2D8), Color(0xFF75675B), Color(0xFF181818))
                 ),
                 DesignViewModel.DesignFeatureItem(
                     id = "exterior_design",
                     title = "Exterior Design",
                     subtitle = "Redesign your exterior space",
-                    badge = "After",
                     colors = listOf(Color(0xFFC6D8A8), Color(0xFF4D744B), Color(0xFF182512))
                 )
             ),
@@ -278,7 +274,6 @@ fun FeatureCardPreview() {
                     id = "interior_design",
                     title = "Interior Design",
                     subtitle = "Redesign your interior space",
-                    badge = "Before",
                     colors = listOf(Color(0xFFE8E2D8), Color(0xFF75675B), Color(0xFF181818))
                 ),
                 height = 176.dp,

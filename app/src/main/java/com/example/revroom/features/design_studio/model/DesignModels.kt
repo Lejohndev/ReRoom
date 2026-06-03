@@ -5,22 +5,84 @@ import android.net.Uri
 data class DesignRequest(
     val imageUri: Uri,
     val styleId: Int,
-    val roomType: String? = null
+    val roomType: String? = null,
+    val featureId: String? = null
 )
 
 data class DesignStyle(
     val styleId: Int,
     val styleName: String,
-    val coreAesthetic: String,
-    val lightingOptions: List<String>,
-    val materialOptions: List<String>,
-    val colorRuleOptions: List<String>,
-    val atmosphereOptions: List<String>
+    val coreAesthetic: String = "",
+    val lightingOptions: List<String> = emptyList(),
+    val materialOptions: List<String> = emptyList(),
+    val colorRuleOptions: List<String> = emptyList(),
+    val atmosphereOptions: List<String> = emptyList()
 )
 
 enum class DesignMode {
     Interior,
     Exterior
+}
+
+val DesignUiState.selectedFeatureTitle: String
+    get() = designFeatureTitle(selectedFeature)
+
+val DesignUiState.selectedFeatureUploadSubtitle: String
+    get() = when (normalizeDesignFeatureId(selectedFeature)) {
+        "furnish_empty_room" -> "Upload an empty room photo"
+        "remove_furniture" -> "Upload a room photo to clear"
+        else -> "Upload your room photo"
+    }
+
+val DesignUiState.selectedFeatureRoomSubtitle: String
+    get() = when (normalizeDesignFeatureId(selectedFeature)) {
+        "furnish_empty_room" -> "What empty room is this?"
+        "remove_furniture" -> "What room should be cleared?"
+        else -> "What room is this?"
+    }
+
+val DesignUiState.selectedFeatureStyleSubtitle: String
+    get() = when (normalizeDesignFeatureId(selectedFeature)) {
+        "furnish_empty_room" -> "Choose furnishing style"
+        "remove_furniture" -> "Choose cleanup style"
+        else -> "Choose your style"
+    }
+
+val DesignUiState.selectedFeatureProcessingSubtitle: String
+    get() = when (normalizeDesignFeatureId(selectedFeature)) {
+        "furnish_empty_room" -> "Furnishing your room"
+        "remove_furniture" -> "Removing furniture"
+        else -> "Generating your design"
+    }
+
+val DesignUiState.selectedFeatureProcessingTitle: String
+    get() = when (normalizeDesignFeatureId(selectedFeature)) {
+        "furnish_empty_room" -> "Furnishing your room..."
+        "remove_furniture" -> "Removing furniture..."
+        else -> "Creating your redesign..."
+    }
+
+val DesignUiState.selectedFeatureResultTitle: String
+    get() = when (normalizeDesignFeatureId(selectedFeature)) {
+        "furnish_empty_room" -> "Your furnished room is ready"
+        "remove_furniture" -> "Your cleared room is ready"
+        else -> "Your redesign is ready"
+    }
+
+private fun designFeatureTitle(featureId: String?): String {
+    return when (normalizeDesignFeatureId(featureId)) {
+        "furnish_empty_room" -> "Furnish Empty Room"
+        "remove_furniture" -> "Remove Furniture"
+        else -> "Interior Design"
+    }
+}
+
+private fun normalizeDesignFeatureId(featureId: String?): String {
+    return when (featureId?.trim()?.lowercase()?.replace("-", "_")?.replace(" ", "_")) {
+        "furnish_empty_room" -> "furnish_empty_room"
+        "remove_furniture" -> "remove_furniture"
+        else -> "interior_design"
+    }
 }
 
 data class DesignResult(

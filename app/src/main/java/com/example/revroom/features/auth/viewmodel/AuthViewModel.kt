@@ -12,6 +12,7 @@ import com.example.revroom.BuildConfig
 import com.example.revroom.core.network.ApiClient
 import com.example.revroom.core.utils.FileUtils
 import com.example.revroom.data.remote.RegisterDeviceRequest
+import com.example.revroom.data.remote.UpdateNameRequest // T đã thêm dòng import này cho m
 import com.example.revroom.data.local.UserManager
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -77,16 +78,21 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    // --- ĐÃ FIX API ĐỔI TÊN Ở ĐÂY ---
     fun updateUserProfile(userId: String, name: String) {
         viewModelScope.launch {
             isUploading = true
             try {
-                val response = ApiClient.authApi.registerDevice(RegisterDeviceRequest(userId, name))
+                Log.d("API_TEST", "Đang gọi Backend đổi tên thành: $name")
+                val response = ApiClient.authApi.updateName(UpdateNameRequest(userId, name))
                 if (response.isSuccessful) {
+                    Log.d("API_TEST", "Thành công! C# đã nhận tên mới.")
                     loadUserProfile(userId)
+                } else {
+                    Log.e("API_TEST", "Lỗi từ C#: ${response.code()}")
                 }
             } catch (e: Exception) {
-                Log.e("API_TEST", "Lỗi update: ${e.message}")
+                Log.e("API_TEST", "Lỗi update (Mất mạng): ${e.message}")
             } finally {
                 isUploading = false
             }

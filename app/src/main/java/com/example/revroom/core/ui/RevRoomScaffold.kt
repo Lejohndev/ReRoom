@@ -3,6 +3,7 @@ package com.example.revroom.core.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -64,6 +66,7 @@ fun StudioScaffold(
     onChat: () -> Unit,
     onGallery: () -> Unit,
     horizontalPadding: Dp = 18.dp,
+    showBottomBar: Boolean = true,
     content: @Composable () -> Unit
 ) {
     Column(
@@ -79,13 +82,15 @@ fun StudioScaffold(
             content()
         }
 
-        StudioBottomBar(
-            selectedTab = selectedTab,
-            onInterior = onInterior,
-            onExterior = onExterior,
-            onChat = onChat,
-            onGallery = onGallery
-        )
+        if (showBottomBar) {
+            StudioBottomBar(
+                selectedTab = selectedTab,
+                onInterior = onInterior,
+                onExterior = onExterior,
+                onChat = onChat,
+                onGallery = onGallery
+            )
+        }
     }
 }
 
@@ -100,17 +105,15 @@ fun StudioBottomBar(
 ) {
     Surface(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 6.dp, end = 6.dp, bottom = 8.dp),
+            .fillMaxWidth(),
         color = Color.White,
-        shape = RoundedCornerShape(20.dp),
-        shadowElevation = 12.dp
+        shadowElevation = 0.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(82.dp)
-                .padding(4.dp),
+                .height(76.dp)
+                .padding(horizontal = 8.dp, vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             BottomBarItem("Interior", Icons.Outlined.Home, selectedTab == StudioTab.Interior, onInterior, Modifier.weight(1f))
@@ -131,22 +134,24 @@ private fun BottomBarItem(
 ) {
     val shape = RoundedCornerShape(16.dp)
     val color = if (selected) Color.White else StudioMuted
+    val selectedBackground = if (selected) {
+        Modifier
+            .clip(shape)
+            .background(StudioGradient)
+    } else {
+        Modifier
+    }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .clip(shape)
-            .background(
-                if (selected) StudioGradient else Brush.horizontalGradient(
-                    listOf(
-                        Color(
-                            0xFFFBFBFC
-                        ), Color(0xFFFBFBFC)
-                    )
-                )
-            )
-            .clickable(onClick = onClick),
+            .then(selectedBackground)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
         contentAlignment = Alignment.Center
     ) {
         Column(

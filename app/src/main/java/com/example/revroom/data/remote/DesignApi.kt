@@ -16,7 +16,8 @@ interface DesignApi {
         @Header("user-id") userId: String,
         @Part image: MultipartBody.Part,
         @Part("styleId") styleId: RequestBody,
-        @Part("roomType") roomType: RequestBody?
+        @Part("roomType") roomType: RequestBody?,
+        @Part("featureId") featureId: RequestBody?
     ): DesignResponse
 
     @GET("api/design/styles")
@@ -40,7 +41,21 @@ interface DesignApi {
         @Header("user-id") userId: String,
         @Path("designId") designId: String
     ): retrofit2.Response<Unit>
+
+    @Multipart
+    @POST("api/design/chat")
+    suspend fun chat(
+        @Header("user-id") userId: String,
+        @Part("Prompt") message: String,
+        @Part image: MultipartBody.Part? = null
+    ): ChatResponse
 }
+
+data class ChatResponse(
+    val message: String? = null,
+    val designId: String? = null,
+    val imageUrl: String? = null
+)
 
 data class ProjectHistoryResponse(
     val data: List<com.example.revroom.features.history.model.ProjectModel>,
@@ -58,11 +73,11 @@ data class DesignResponse(
 data class DesignStyleResponse(
     val styleId: Int,
     val styleName: String,
-    val coreAesthetic: String,
-    val lightingOptions: List<String>,
-    val materialOptions: List<String>,
-    val colorRuleOptions: List<String>,
-    val atmosphereOptions: List<String>
+    val coreAesthetic: String? = null,
+    val lightingOptions: List<String>? = emptyList(),
+    val materialOptions: List<String>? = emptyList(),
+    val colorRuleOptions: List<String>? = emptyList(),
+    val atmosphereOptions: List<String>? = emptyList()
 )
 
 data class DesignStatusResponse(

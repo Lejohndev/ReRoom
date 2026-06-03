@@ -1,6 +1,7 @@
 package com.example.revroom.data.repository
 
 import android.content.Context
+import android.util.Log
 import android.webkit.MimeTypeMap
 import com.example.revroom.core.network.ApiClient
 import com.example.revroom.core.utils.ImageCompressor
@@ -35,13 +36,16 @@ class DesignRepository(
             val userId = ensureRegisteredUser()
             val imageBytes = ImageCompressor.readAndCompressIfNeeded(context, request.imageUri)
             val contentType = context.contentResolver.getType(request.imageUri) ?: "image/jpeg"
-            val imagePart = createImagePart(imageBytes, contentType)
+            val imagePart = createImagePart("image", imageBytes, contentType)
             val styleIdPart = request.styleId.toString().toRequestBody("text/plain".toMediaType())
             val roomTypePart = request.roomType
                 ?.takeIf { it.isNotBlank() }
                 ?.toRequestBody("text/plain".toMediaType())
+            val featureIdPart = request.featureId
+                ?.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaType())
 
-            designApi.analyzeDesign(userId, imagePart, styleIdPart, roomTypePart).toDesignResult()
+            designApi.analyzeDesign(userId, imagePart, styleIdPart, roomTypePart, featureIdPart).toDesignResult()
         }
     }
 
@@ -51,11 +55,11 @@ class DesignRepository(
                 DesignStyle(
                     styleId = style.styleId,
                     styleName = style.styleName,
-                    coreAesthetic = style.coreAesthetic,
-                    lightingOptions = style.lightingOptions,
-                    materialOptions = style.materialOptions,
-                    colorRuleOptions = style.colorRuleOptions,
-                    atmosphereOptions = style.atmosphereOptions
+                    coreAesthetic = style.coreAesthetic ?: "",
+                    lightingOptions = style.lightingOptions ?: emptyList(),
+                    materialOptions = style.materialOptions ?: emptyList(),
+                    colorRuleOptions = style.colorRuleOptions ?: emptyList(),
+                    atmosphereOptions = style.atmosphereOptions ?: emptyList()
                 )
             }
         }
@@ -68,19 +72,68 @@ class DesignRepository(
         }
     }
 
-    private suspend fun ensureRegisteredUser(): String {
-        registeredUserId?.let { return it }
-
-        val userId = userIdProvider.getOrCreateUserId()
-        authApi.registerDevice(RegisterDeviceRequest(userId = userId, name = "Revroom User"))
-        registeredUserId = userId
-        return userId
+    suspend fun sendMessage(message: String, imageUri: android.net.Uri?): Result<com.example.revroom.data.remote.ChatResponse> {
+        return runApiCall {
+            val userId = ensureRegisteredUser()
+            val imagePart = imageUri?.let { uri ->
+                val imageBytes = ImageCompressor.readAndCompressIfNeeded(context, uri)
+                val contentType = context.contentResolver.getType(uri) ?: "image/jpeg"
+                createImagePart("Image", imageBytes, contentType)
+            } ?: throw DesignRepositoryException("Vui lòng chọn ảnh để bắt đầu tư vấn thiết kế.")
+            
+            designApi.chat(userId, message, imagePart)
+        }
     }
 
-    private fun createImagePart(imageBytes: ByteArray, contentType: String): MultipartBody.Part {
+    private suspend fun ensureRegisteredUser(): String {
+        // Nếu đã có trong session hiện tại thì dùng luôn
+        registeredUserId?.let { return it }
+
+        // 1. Lấy Android ID của thiết bị (định danh không đổi)
+        val deviceId = userIdProvider.getOrCreateUserId()
+        
+        try {
+            // 2. Kiểm tra Server xem có "điện thoại cũ" này chưa
+            val profileResponse = authApi.getProfile(deviceId)
+            if (profileResponse.isSuccessful) {
+                val profile = profileResponse.body()
+                if (profile != null) {
+                    // QUAN TRỌNG: Server đã có rồi! 
+                    // Ta dùng profile.userId (lấy từ server) để đảm bảo đồng bộ hoàn toàn
+                    registeredUserId = profile.userId
+                    
+                    // Lưu lại vào Local để các lần sau không cần check server nữa (cho đến khi xóa app)
+                    userIdProvider.saveUserId(profile.userId)
+                    
+                    Log.d("DesignRepository", "Đã nhận diện thiết bị cũ. Tên: ${profile.name}, ID: ${profile.userId}")
+                    return profile.userId
+                }
+            }
+        } catch (e: Exception) {
+            Log.d("DesignRepository", "Không tìm thấy thông tin cũ, sẽ đăng ký mới")
+        }
+
+        // 3. Nếu Server chưa có thông tin, mới tiến hành đăng ký
+        try {
+            val registerResponse = authApi.registerDevice(
+                RegisterDeviceRequest(userId = deviceId, name = "Revroom User")
+            )
+            if (registerResponse.isSuccessful) {
+                registeredUserId = deviceId
+                userIdProvider.saveUserId(deviceId)
+                Log.d("DesignRepository", "Đăng ký thiết bị mới: $deviceId")
+            }
+        } catch (e: Exception) {
+            Log.e("DesignRepository", "Lỗi đăng ký: ${e.message}")
+        }
+
+        return registeredUserId ?: deviceId
+    }
+
+    private fun createImagePart(partName: String, imageBytes: ByteArray, contentType: String): MultipartBody.Part {
         val requestBody = imageBytes.toRequestBody(contentType.toMediaTypeOrNull())
         val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(contentType) ?: "jpg"
-        return MultipartBody.Part.createFormData("image", "room-upload.$extension", requestBody)
+        return MultipartBody.Part.createFormData(partName, "room-upload.$extension", requestBody)
     }
 
     private suspend fun <T> runApiCall(block: suspend () -> T): Result<T> {
@@ -102,6 +155,8 @@ class DesignRepository(
             if (!message.isNullOrBlank()) {
                 return message
             }
+            // Log raw error body if message not found
+            android.util.Log.e("DesignRepository", "Raw error body: $errorBody")
         }
 
         return "Yêu cầu thất bại (${error.code()})."

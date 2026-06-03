@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.revroom.features.design_studio.components.BeforeAfterSlider
 import com.example.revroom.features.design_studio.model.DesignUiState
+import com.example.revroom.features.design_studio.model.selectedFeatureResultTitle
 import com.example.revroom.core.theme.RevroomTheme
 
 @Composable
@@ -38,7 +39,7 @@ fun ResultScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            Text(text = "Kết quả", style = MaterialTheme.typography.headlineMedium)
+            Text(text = uiState.selectedFeatureResultTitle, style = MaterialTheme.typography.headlineMedium)
 
             if (originalImageUrl != null && designedImageUrl != null) {
                 BeforeAfterSlider(

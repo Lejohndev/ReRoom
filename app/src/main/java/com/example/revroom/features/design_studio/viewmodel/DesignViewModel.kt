@@ -34,8 +34,9 @@ class DesignViewModel(
         val id: String,
         val title: String,
         val subtitle: String,
-        val badge: String,
-        val colors: List<Color>
+        val colors: List<Color>,
+        val beforeImageRes: Int? = null,
+        val afterImageRes: Int? = null
     )
 
     data class SelectionItem(
@@ -54,21 +55,18 @@ class DesignViewModel(
             "interior_design",
             "Interior Design",
             "Redesign your interior space",
-            "Before",
             listOf(Color(0xFFE8E2D8), Color(0xFF75675B), Color(0xFF181818))
         ),
         DesignFeatureItem(
             "furnish_empty_room",
             "Furnish Empty Room",
             "Transform empty space into furnished room",
-            "Before",
             listOf(Color(0xFFEDE8DE), Color(0xFFB7A58C), Color(0xFF1F1A15))
         ),
         DesignFeatureItem(
             "remove_furniture",
             "Remove Furniture",
             "Clear and empty your room",
-            "Before",
             listOf(Color(0xFFECE7DD), Color(0xFF9F8F7C), Color(0xFF171717))
         )
     )
@@ -78,21 +76,18 @@ class DesignViewModel(
             "exterior_design",
             "Exterior Design",
             "Redesign your exterior space",
-            "After",
             listOf(Color(0xFFC6D8A8), Color(0xFF4D744B), Color(0xFF182512))
         ),
         DesignFeatureItem(
             "facade",
             "Facade",
             "Building exterior & materials",
-            "After",
             listOf(Color(0xFFD8D2C8), Color(0xFF56626B), Color(0xFF15191D))
         ),
         DesignFeatureItem(
             "landscaping",
             "Landscaping",
             "Beautiful outdoor spaces",
-            "After",
             listOf(Color(0xFFD5E3C4), Color(0xFF50705A), Color(0xFF132016))
         )
     )
@@ -162,7 +157,8 @@ class DesignViewModel(
                 DesignRequest(
                     imageUri = imageUri,
                     styleId = styleId,
-                    roomType = currentState.selectedRoomType
+                    roomType = currentState.selectedRoomType,
+                    featureId = currentState.selectedFeature ?: "interior_design"
                 )
             )
                 .onSuccess { response ->
