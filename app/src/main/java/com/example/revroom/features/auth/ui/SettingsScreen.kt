@@ -70,36 +70,21 @@ fun SettingsScreen(
     val gradientColors = listOf(Color(0xFF8A2BE2), Color(0xFFFF4081)) // Tím đậm -> Hồng nhạt
     val backgroundColor = Color(0xFFF7F8FA) // Màu nền trắng xám bên dưới
 
-    // Dùng Box làm Root để xếp chồng các layer lên nhau
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
+    // ROOT LAYOUT: Tách thẳng thành 2 nửa 40/60 thay vì xếp chồng Layer
+    Column(
+        modifier = Modifier.fillMaxSize()
     ) {
-        // LAYER 1: CÁI NỀN ĐƯỢC CHIA TỈ LỆ 40/60
-        Column(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(0.4f)
-                    .background(brush = Brush.verticalGradient(gradientColors))
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(0.6f)
-                    .background(backgroundColor)
-            )
-        }
-
-        // LAYER 2: NỘI DUNG CHÍNH
+        // ==========================================
+        // PHẦN TRÊN: 40% (BACKGROUND GRADIENT)
+        // ==========================================
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 40.dp), // Khoảng cách từ mép trên màn hình
+                .fillMaxWidth()
+                .weight(0.4f)
+                .background(brush = Brush.verticalGradient(gradientColors))
+                .padding(top = 60.dp, bottom = 16.dp), // Margin an toàn cho system bar
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             // 1. Tiêu đề
             Text(
                 text = "Settings",
@@ -108,8 +93,8 @@ fun SettingsScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            // Tăng khoảng cách này để đẩy Avatar xuống đúng đường ranh giới
-            Spacer(modifier = Modifier.height(48.dp))
+            // Dùng weight(1f) để tự động căn giữa Avatar vào phần không gian còn lại
+            Spacer(modifier = Modifier.weight(1f))
 
             // 2. KHU VỰC AVATAR
             Box(
@@ -154,110 +139,117 @@ fun SettingsScreen(
                 }
             }
 
-            // Khoảng cách từ Avatar xuống các ô nhập liệu
-            Spacer(modifier = Modifier.height(48.dp))
+            // Khoảng trống linh hoạt phía dưới Avatar
+            Spacer(modifier = Modifier.weight(1f))
+        }
 
-            // 3. KHU VỰC NHẬP TÊN & THÔNG TIN BÊN DƯỚI (Nền trắng xám)
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
+        // ==========================================
+        // PHẦN DƯỚI: 60% (BACKGROUND TRẮNG XÁM)
+        // ==========================================
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.6f)
+                .background(backgroundColor)
+                .padding(horizontal = 24.dp)
+        ) {
+
+            // Khoảng cách cố định từ mép phân cách (40/60) đẩy Form xuống
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Nhập Tên
+            Text(text = "USER PROFILE", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = userNameInput,
+                onValueChange = { userNameInput = it },
+                placeholder = { Text("Enter your name") },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFF8A2BE2),
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Copy ID
+            Text(text = "USER SETTINGS", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+            Spacer(modifier = Modifier.height(8.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(12.dp)
             ) {
-
-                // Nhập Tên
-                Text(text = "USER PROFILE", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = userNameInput,
-                    onValueChange = { userNameInput = it },
-                    placeholder = { Text("Enter your name") },
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF8A2BE2),
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Copy ID
-                Text(text = "USER SETTINGS", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
-                Spacer(modifier = Modifier.height(8.dp))
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.Person, contentDescription = null, tint = Color.Gray)
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Text(
-                                text = if (userId.length > 18) userId.take(18) + "..." else userId,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.DarkGray
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                clipboardManager.setText(AnnotatedString(userId))
-                                Toast.makeText(context, "ID Copied!", Toast.LENGTH_SHORT).show()
-                            },
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(imageVector = Icons.Default.ContentCopy, contentDescription = "Copy ID", tint = Color.Gray)
-                        }
-                    }
-                }
-
-                // Nút Lưu thay đổi
-                if (shouldShowSaveButton) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Button(
-                        onClick = {
-                            if (authViewModel.selectedImageUri != null) {
-                                authViewModel.uploadImage(context, userId)
-                            } else {
-                                authViewModel.updateUserProfile(userId, userNameInput)
-                            }
-                        },
-                        enabled = !authViewModel.isUploading,
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8A2BE2)),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        if (authViewModel.isUploading) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
-                        } else {
-                            Text("SAVE CHANGES", fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-
-                // --- APP VERSION
-                Spacer(modifier = Modifier.height(40.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = "App Version i100.1.2 AA",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.LightGray
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(imageVector = Icons.Default.Person, contentDescription = null, tint = Color.Gray)
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = if (userId.length > 18) userId.take(18) + "..." else userId,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.DarkGray
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            clipboardManager.setText(AnnotatedString(userId))
+                            Toast.makeText(context, "ID Copied!", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.ContentCopy, contentDescription = "Copy ID", tint = Color.Gray)
+                    }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
             }
+
+            // Nút Lưu thay đổi
+            if (shouldShowSaveButton) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = {
+                        if (authViewModel.selectedImageUri != null) {
+                            authViewModel.uploadImage(context, userId)
+                        } else {
+                            authViewModel.updateUserProfile(userId, userNameInput)
+                        }
+                    },
+                    enabled = !authViewModel.isUploading,
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8A2BE2)),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    if (authViewModel.isUploading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                    } else {
+                        Text("SAVE CHANGES", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            // --- APP VERSION (Dùng weight để tự động đẩy nó xuống sát mép dưới màn hình)
+            Spacer(modifier = Modifier.weight(1f))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "App Version i100.1.2 AA",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.LightGray
+                )
+            }
+            Spacer(modifier = Modifier.height(50.dp)) // Khoảng hở với viền dưới điện thoại
         }
     }
 }
