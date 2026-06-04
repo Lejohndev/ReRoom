@@ -25,10 +25,10 @@ data class UserProfileResponse(
     val createdAt: String?,
 )
 
-// 🔥 THÊM CÁI NÀY: Class để gói ID và Tên mới ném lên Server
-data class UpdateNameRequest(
-    val userId: String,
-    val newName: String
+// 👉 Đổi tên thành UpdateProfileRequest cho đúng chuẩn kế hoạch
+data class UpdateProfileRequest(
+    val name: String,
+    val avatarUrl: String? = null
 )
 
 // --- INTERFACE GỌI API ---
@@ -47,7 +47,10 @@ interface AuthApi {
     @GET("api/Auth/profile/{userId}")
     suspend fun getProfile(@Path("userId") userId: String): Response<UserProfileResponse>
 
-    // 🔥 THÊM CÁI NÀY: Khai báo cổng API update tên
-    @PUT("api/Auth/update-name")
-    suspend fun updateName(@Body request: UpdateNameRequest): Response<Any>
+    // 👉 Sửa lại đường dẫn chuẩn: PUT /api/Auth/profile/{userId}
+    @PUT("api/Auth/profile/{userId}")
+    suspend fun updateProfile(
+        @Path("userId") userId: String,
+        @Body request: UpdateProfileRequest
+    ): Response<Any>
 }
