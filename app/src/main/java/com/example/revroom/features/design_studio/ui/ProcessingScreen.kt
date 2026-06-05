@@ -69,6 +69,8 @@ fun ProcessingResultScreen(
     onExterior: () -> Unit,
     onChat: () -> Unit,
     onGallery: () -> Unit,
+    currentStep: Int = 4,
+    totalSteps: Int = 4,
     showBottomBar: Boolean = true
 ) {
     var showExitDialog by remember { mutableStateOf(false) }
@@ -143,9 +145,10 @@ fun ProcessingResultScreen(
             )
 
             StepProgress(
-                currentStep = 4,
+                currentStep = currentStep,
                 caption = if (uiState.phase == DesignPhase.Completed) resultTitle else processingCaption,
-                modifier = Modifier.padding(top = 6.dp)
+                modifier = Modifier.padding(top = 6.dp),
+                totalSteps = totalSteps
             )
 
             Box(modifier = Modifier.weight(1f)) {

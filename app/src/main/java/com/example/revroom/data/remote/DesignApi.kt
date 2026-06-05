@@ -15,7 +15,7 @@ interface DesignApi {
     suspend fun analyzeDesign(
         @Header("user-id") userId: String,
         @Part image: MultipartBody.Part,
-        @Part("styleId") styleId: RequestBody,
+        @Part("styleId") styleId: RequestBody?,
         @Part("roomType") roomType: RequestBody?,
         @Part("featureId") featureId: RequestBody?
     ): DesignResponse

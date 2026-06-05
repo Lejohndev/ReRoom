@@ -59,6 +59,7 @@ fun StyleScreen(
     onExterior: () -> Unit,
     onChat: () -> Unit,
     onGallery: () -> Unit,
+    totalSteps: Int = 4,
     showBottomBar: Boolean = true
 ) {
     StudioScaffold(
@@ -90,7 +91,8 @@ fun StyleScreen(
             StepProgress(
                 currentStep = 3,
                 caption = stepCaption,
-                modifier = Modifier.padding(top = 6.dp)
+                modifier = Modifier.padding(top = 6.dp),
+                totalSteps = totalSteps
             )
 
             Text(

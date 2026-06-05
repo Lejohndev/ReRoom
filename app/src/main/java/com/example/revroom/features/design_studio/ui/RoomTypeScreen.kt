@@ -1,5 +1,6 @@
 package com.example.revroom.features.design_studio.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,6 +60,7 @@ fun RoomTypeScreen(
     onExterior: () -> Unit,
     onChat: () -> Unit,
     onGallery: () -> Unit,
+    totalSteps: Int = 4,
     showBottomBar: Boolean = true
 ) {
     StudioScaffold(
@@ -88,7 +92,8 @@ fun RoomTypeScreen(
             StepProgress(
                 currentStep = 2,
                 caption = stepCaption,
-                modifier = Modifier.padding(top = 6.dp)
+                modifier = Modifier.padding(top = 6.dp),
+                totalSteps = totalSteps
             )
 
             LazyVerticalGrid(
@@ -147,15 +152,29 @@ fun RoundSelectionItem(
             modifier = Modifier
                 .size(82.dp)
                 .clip(CircleShape)
-                .background(Brush.linearGradient(item.colors))
+                .background(Color.White)
                 .border(if (selected) 3.dp else 0.dp, StudioGradient, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0x33000000))))
-            )
+            if (item.imageRes != null) {
+                Image(
+                    painter = painterResource(id = item.imageRes),
+                    contentDescription = item.label,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Brush.linearGradient(item.colors))
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0x33000000))))
+                )
+            }
         }
         Text(
             text = item.label,

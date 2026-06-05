@@ -222,8 +222,12 @@ fun TopTitleBar(
 fun StepProgress(
     currentStep: Int,
     caption: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    totalSteps: Int = 4
 ) {
+    val stepCount = totalSteps.coerceAtLeast(1)
+    val activeStep = currentStep.coerceIn(1, stepCount)
+
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -232,14 +236,14 @@ fun StepProgress(
             modifier = Modifier.fillMaxWidth(0.78f),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            for (step in 1..4) {
-                StepDot(step = step, currentStep = currentStep)
-                if (step != 4) {
+            for (step in 1..stepCount) {
+                StepDot(step = step, currentStep = activeStep)
+                if (step != stepCount) {
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .height(2.dp)
-                            .background(if (step < currentStep) StudioPink else Color(0xFFE1E4E8))
+                            .background(if (step < activeStep) StudioPink else Color(0xFFE1E4E8))
                     )
                 }
             }

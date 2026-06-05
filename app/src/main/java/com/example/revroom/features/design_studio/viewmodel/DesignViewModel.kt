@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.revroom.R
 import com.example.revroom.data.repository.DesignRepository
 import com.example.revroom.features.design_studio.model.DesignJobStatus
 import com.example.revroom.features.design_studio.model.DesignMode
@@ -47,7 +48,8 @@ class DesignViewModel(
         val lightingOptions: List<String> = emptyList(),
         val materialOptions: List<String> = emptyList(),
         val colorRuleOptions: List<String> = emptyList(),
-        val atmosphereOptions: List<String> = emptyList()
+        val atmosphereOptions: List<String> = emptyList(),
+        val imageRes: Int? = null
     )
 
     val interiorFeatures = listOf(
@@ -55,19 +57,25 @@ class DesignViewModel(
             "interior_design",
             "Interior Design",
             "Redesign your interior space",
-            listOf(Color(0xFFE8E2D8), Color(0xFF75675B), Color(0xFF181818))
+            listOf(Color(0xFFE8E2D8), Color(0xFF75675B), Color(0xFF181818)),
+            beforeImageRes = R.drawable.feature_interior_before,
+            afterImageRes = R.drawable.feature_interior_after
         ),
         DesignFeatureItem(
             "furnish_empty_room",
             "Furnish Empty Room",
             "Transform empty space into furnished room",
-            listOf(Color(0xFFEDE8DE), Color(0xFFB7A58C), Color(0xFF1F1A15))
+            listOf(Color(0xFFEDE8DE), Color(0xFFB7A58C), Color(0xFF1F1A15)),
+            beforeImageRes = R.drawable.feature_furnish_before,
+            afterImageRes = R.drawable.feature_furnish_after
         ),
         DesignFeatureItem(
             "remove_furniture",
             "Remove Furniture",
             "Clear and empty your room",
-            listOf(Color(0xFFECE7DD), Color(0xFF9F8F7C), Color(0xFF171717))
+            listOf(Color(0xFFECE7DD), Color(0xFF9F8F7C), Color(0xFF171717)),
+            beforeImageRes = R.drawable.feature_remove_before,
+            afterImageRes = R.drawable.feature_remove_after
         )
     )
 
@@ -93,14 +101,14 @@ class DesignViewModel(
     )
 
     val roomTypes = listOf(
-        SelectionItem("living_room", "Living Room", listOf(Color(0xFFD8C3A5), Color(0xFF735F4D))),
-        SelectionItem("master_bedroom", "Master Bedroom", listOf(Color(0xFFE6D8CC), Color(0xFF78909C))),
-        SelectionItem("kitchen", "Kitchen", listOf(Color(0xFFDCE8E4), Color(0xFF7E8D85))),
-        SelectionItem("dining_room", "Dining Room", listOf(Color(0xFFECE4D7), Color(0xFFB48B58))),
-        SelectionItem("bathroom", "Bathroom", listOf(Color(0xFFE7E1D4), Color(0xFFA79F93))),
-        SelectionItem("study_room", "Study Room", listOf(Color(0xFFE8E2DB), Color(0xFFB9A18D))),
-        SelectionItem("kids_room", "Kids Room", listOf(Color(0xFFE9F0EF), Color(0xFFA7C7C5))),
-        SelectionItem("walk_in_closet", "Walk-in Closet", listOf(Color(0xFFE5D7C6), Color(0xFF9E8065))),
+        SelectionItem("living_room", "Living Room", listOf(Color(0xFFD8C3A5), Color(0xFF735F4D)), imageRes = R.drawable.room_living_room),
+        SelectionItem("master_bedroom", "Master Bedroom", listOf(Color(0xFFE6D8CC), Color(0xFF78909C)), imageRes = R.drawable.room_master_bedroom),
+        SelectionItem("kitchen", "Kitchen", listOf(Color(0xFFDCE8E4), Color(0xFF7E8D85)), imageRes = R.drawable.room_kitchen),
+        SelectionItem("dining_room", "Dining Room", listOf(Color(0xFFECE4D7), Color(0xFFB48B58)), imageRes = R.drawable.room_dining_room),
+        SelectionItem("bathroom", "Bathroom", listOf(Color(0xFFE7E1D4), Color(0xFFA79F93)), imageRes = R.drawable.room_bathroom),
+        SelectionItem("study_room", "Study Room", listOf(Color(0xFFE8E2DB), Color(0xFFB9A18D)), imageRes = R.drawable.room_study_room),
+        SelectionItem("kids_room", "Kids Room", listOf(Color(0xFFE9F0EF), Color(0xFFA7C7C5)), imageRes = R.drawable.room_kids_room),
+        SelectionItem("walk_in_closet", "Walk-in Closet", listOf(Color(0xFFE5D7C6), Color(0xFF9E8065)), imageRes = R.drawable.room_walk_in_closet),
     )
 
     private val stylePalettes = listOf(
@@ -140,8 +148,17 @@ class DesignViewModel(
         val currentState = _uiState.value
         val imageUri = currentState.selectedImageUri
         val styleId = currentState.selectedStyle?.toIntOrNull()
+        val isRemoveFurniture = currentState.selectedFeature == "remove_furniture"
 
-        if (imageUri == null || styleId == null || (currentState.designMode == DesignMode.Interior && (currentState.selectedRoomType == null))) {
+        if (imageUri == null) {
+            _uiState.value = currentState.copy(
+                phase = DesignPhase.Failed,
+                errorMessage = "Please choose a photo."
+            )
+            return
+        }
+
+        if (!isRemoveFurniture && (styleId == null || (currentState.designMode == DesignMode.Interior && currentState.selectedRoomType == null))) {
             _uiState.value = currentState.copy(
                 phase = DesignPhase.Failed,
                 errorMessage = "Please choose a photo, room type, and style."
@@ -156,9 +173,9 @@ class DesignViewModel(
             repository.uploadDesign(
                 DesignRequest(
                     imageUri = imageUri,
-                    styleId = styleId,
-                    roomType = currentState.selectedRoomType,
-                    featureId = currentState.selectedFeature ?: "interior_design"
+                    styleId = if (isRemoveFurniture) null else styleId,
+                    roomType = if (isRemoveFurniture) null else currentState.selectedRoomType,
+                    featureId = if (isRemoveFurniture) "remove_furniture" else currentState.selectedFeature ?: "interior_design"
                 )
             )
                 .onSuccess { response ->
