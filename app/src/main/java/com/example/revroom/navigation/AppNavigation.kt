@@ -40,6 +40,8 @@ import com.example.revroom.data.local.UserManager
 import com.example.revroom.features.auth.ui.SettingsScreen
 import com.example.revroom.features.chat.ui.ChatScreen
 import com.example.revroom.features.design_studio.model.DesignMode
+import com.example.revroom.features.design_studio.model.designFlowProcessingStep
+import com.example.revroom.features.design_studio.model.designFlowTotalSteps
 import com.example.revroom.features.design_studio.model.selectedFeatureRoomSubtitle
 import com.example.revroom.features.design_studio.model.selectedFeatureStyleSubtitle
 import com.example.revroom.features.design_studio.model.selectedFeatureTitle
@@ -163,6 +165,7 @@ fun AppNavigation() {
 
                 composable(Route.UPLOAD) {
                     val isExterior = uiState.designMode == DesignMode.Exterior
+                    val isRemoveFurniture = uiState.selectedFeature == "remove_furniture"
                     val flowTitle = if (isExterior) "Exterior Design" else uiState.selectedFeatureTitle
                     UploadPhotoScreen(
                         title = flowTitle,
@@ -171,7 +174,12 @@ fun AppNavigation() {
                         selectedImageUri = uiState.selectedImageUri,
                         onImageSelected = viewModel::selectImage,
                         onNext = {
-                            if (isExterior) {
+                            if (isRemoveFurniture) {
+                                viewModel.createDesign()
+                                navController.navigate(Route.PROCESSING_RESULT) {
+                                    launchSingleTop = true
+                                }
+                            } else if (isExterior) {
                                 navController.navigate(Route.STYLE_SELECT)
                             } else {
                                 navController.navigate(Route.ROOM_TYPE)
@@ -182,6 +190,7 @@ fun AppNavigation() {
                         onExterior = ::goExterior,
                         onChat = ::goChat,
                         onGallery = ::goGallery,
+                        totalSteps = uiState.designFlowTotalSteps,
                         showBottomBar = false
                     )
                 }
@@ -199,6 +208,7 @@ fun AppNavigation() {
                         onExterior = ::goExterior,
                         onChat = ::goChat,
                         onGallery = ::goGallery,
+                        totalSteps = 4,
                         showBottomBar = false
                     )
                 }
@@ -224,6 +234,7 @@ fun AppNavigation() {
                         onExterior = ::goExterior,
                         onChat = ::goChat,
                         onGallery = ::goGallery,
+                        totalSteps = 4,
                         showBottomBar = false
                     )
                 }
@@ -260,6 +271,8 @@ fun AppNavigation() {
                         onExterior = ::goExterior,
                         onChat = ::goChat,
                         onGallery = ::goGallery,
+                        currentStep = uiState.designFlowProcessingStep,
+                        totalSteps = uiState.designFlowTotalSteps,
                         showBottomBar = false
                     )
                 }

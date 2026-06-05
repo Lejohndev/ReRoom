@@ -61,6 +61,7 @@ fun UploadPhotoScreen(
     onExterior: () -> Unit,
     onChat: () -> Unit,
     onGallery: () -> Unit,
+    totalSteps: Int = 4,
     showBottomBar: Boolean = true
 ) {
     val photoPicker = rememberLauncherForActivityResult(
@@ -99,7 +100,8 @@ fun UploadPhotoScreen(
             StepProgress(
                 currentStep = 1,
                 caption = stepCaption,
-                modifier = Modifier.padding(top = 10.dp)
+                modifier = Modifier.padding(top = 10.dp),
+                totalSteps = totalSteps
             )
 
             Box(

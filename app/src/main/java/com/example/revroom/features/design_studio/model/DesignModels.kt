@@ -4,7 +4,7 @@ import android.net.Uri
 
 data class DesignRequest(
     val imageUri: Uri,
-    val styleId: Int,
+    val styleId: Int?,
     val roomType: String? = null,
     val featureId: String? = null
 )
@@ -69,6 +69,12 @@ val DesignUiState.selectedFeatureResultTitle: String
         else -> "Your redesign is ready"
     }
 
+val DesignUiState.designFlowTotalSteps: Int
+    get() = if (isRemoveFurnitureFeature) 2 else 4
+
+val DesignUiState.designFlowProcessingStep: Int
+    get() = designFlowTotalSteps
+
 private fun designFeatureTitle(featureId: String?): String {
     return when (normalizeDesignFeatureId(featureId)) {
         "furnish_empty_room" -> "Furnish Empty Room"
@@ -84,6 +90,9 @@ private fun normalizeDesignFeatureId(featureId: String?): String {
         else -> "interior_design"
     }
 }
+
+private val DesignUiState.isRemoveFurnitureFeature: Boolean
+    get() = normalizeDesignFeatureId(selectedFeature) == "remove_furniture"
 
 data class DesignResult(
     val designId: String,

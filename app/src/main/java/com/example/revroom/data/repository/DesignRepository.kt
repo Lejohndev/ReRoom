@@ -37,7 +37,9 @@ class DesignRepository(
             val imageBytes = ImageCompressor.readAndCompressIfNeeded(context, request.imageUri)
             val contentType = context.contentResolver.getType(request.imageUri) ?: "image/jpeg"
             val imagePart = createImagePart("image", imageBytes, contentType)
-            val styleIdPart = request.styleId.toString().toRequestBody("text/plain".toMediaType())
+            val styleIdPart = request.styleId
+                ?.toString()
+                ?.toRequestBody("text/plain".toMediaType())
             val roomTypePart = request.roomType
                 ?.takeIf { it.isNotBlank() }
                 ?.toRequestBody("text/plain".toMediaType())
