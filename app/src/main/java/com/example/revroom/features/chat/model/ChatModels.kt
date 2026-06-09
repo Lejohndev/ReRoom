@@ -17,6 +17,8 @@ data class ChatUiState(
     val messages: List<ChatMessage> = emptyList(),
     val inputText: String = "",
     val selectedImageUri: Uri? = null,
+    val selectedModel: String? = null,
+    val selectedResolution: String? = null,
     val isLoading: Boolean = false,
     val error: String? = null
 )

@@ -33,6 +33,14 @@ class ChatViewModel(
         _uiState.update { it.copy(selectedImageUri = uri) }
     }
 
+    fun selectModel(model: String?) {
+        _uiState.update { it.copy(selectedModel = model) }
+    }
+
+    fun selectResolution(resolution: String?) {
+        _uiState.update { it.copy(selectedResolution = resolution) }
+    }
+
     fun sendMessage() {
         val currentState = _uiState.value
         val text = currentState.inputText
@@ -59,7 +67,7 @@ class ChatViewModel(
 
         viewModelScope.launch {
             Log.d("ChatViewModel", "Sending message: '$text', hasImage: ${imageUri != null}")
-            repository.sendMessage(text, imageUri)
+            repository.sendMessage(text, imageUri, currentState.selectedModel, currentState.selectedResolution)
                 .onSuccess { response ->
                     val assistantMessageId = UUID.randomUUID().toString()
                     val assistantMessage = ChatMessage(

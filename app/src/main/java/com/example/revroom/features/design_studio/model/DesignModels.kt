@@ -6,7 +6,9 @@ data class DesignRequest(
     val imageUri: Uri,
     val styleId: Int?,
     val roomType: String? = null,
-    val featureId: String? = null
+    val featureId: String? = null,
+    val model: String? = "generate-pro",
+    val resolution: String? = "2K"
 )
 
 data class DesignStyle(

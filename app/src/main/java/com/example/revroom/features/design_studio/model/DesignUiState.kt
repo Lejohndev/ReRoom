@@ -8,6 +8,8 @@ data class DesignUiState(
     val selectedImageUri: Uri? = null,
     val selectedRoomType: String? = null,
     val selectedStyle: String? = null,
+    val selectedModel: String? = null,
+    val selectedResolution: String? = null,
     val phase: DesignPhase = DesignPhase.Idle,
     val designId: String? = null,
     val originalImageUrl: String? = null,

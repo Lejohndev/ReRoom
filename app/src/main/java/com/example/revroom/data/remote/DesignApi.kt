@@ -17,7 +17,9 @@ interface DesignApi {
         @Part image: MultipartBody.Part,
         @Part("styleId") styleId: RequestBody?,
         @Part("roomType") roomType: RequestBody?,
-        @Part("featureId") featureId: RequestBody?
+        @Part("featureId") featureId: RequestBody?,
+        @Part("model") model: RequestBody?,
+        @Part("resolution") resolution: RequestBody?
     ): DesignResponse
 
     @GET("api/design/styles")
@@ -47,7 +49,9 @@ interface DesignApi {
     suspend fun chat(
         @Header("user-id") userId: String,
         @Part("Prompt") message: String,
-        @Part image: MultipartBody.Part? = null
+        @Part image: MultipartBody.Part? = null,
+        @Part("model") model: RequestBody? = null,
+        @Part("resolution") resolution: RequestBody? = null
     ): ChatResponse
 }
 

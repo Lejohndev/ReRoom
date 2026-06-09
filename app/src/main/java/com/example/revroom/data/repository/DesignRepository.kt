@@ -46,8 +46,14 @@ class DesignRepository(
             val featureIdPart = request.featureId
                 ?.takeIf { it.isNotBlank() }
                 ?.toRequestBody("text/plain".toMediaType())
+            val modelPart = request.model
+                ?.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaType())
+            val resolutionPart = request.resolution
+                ?.takeIf { it.isNotBlank() }
+                ?.toRequestBody("text/plain".toMediaType())
 
-            designApi.analyzeDesign(userId, imagePart, styleIdPart, roomTypePart, featureIdPart).toDesignResult()
+            designApi.analyzeDesign(userId, imagePart, styleIdPart, roomTypePart, featureIdPart, modelPart, resolutionPart).toDesignResult()
         }
     }
 
@@ -74,7 +80,12 @@ class DesignRepository(
         }
     }
 
-    suspend fun sendMessage(message: String, imageUri: android.net.Uri?): Result<com.example.revroom.data.remote.ChatResponse> {
+    suspend fun sendMessage(
+        message: String,
+        imageUri: android.net.Uri?,
+        model: String? = null,
+        resolution: String? = null
+    ): Result<com.example.revroom.data.remote.ChatResponse> {
         return runApiCall {
             val userId = ensureRegisteredUser()
             val imagePart = imageUri?.let { uri ->
@@ -82,8 +93,11 @@ class DesignRepository(
                 val contentType = context.contentResolver.getType(uri) ?: "image/jpeg"
                 createImagePart("Image", imageBytes, contentType)
             } ?: throw DesignRepositoryException("Vui lòng chọn ảnh để bắt đầu tư vấn thiết kế.")
+
+            val modelPart = model?.toRequestBody("text/plain".toMediaType())
+            val resolutionPart = resolution?.toRequestBody("text/plain".toMediaType())
             
-            designApi.chat(userId, message, imagePart)
+            designApi.chat(userId, message, imagePart, modelPart, resolutionPart)
         }
     }
 

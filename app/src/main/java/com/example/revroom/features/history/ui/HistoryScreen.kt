@@ -101,6 +101,7 @@ fun HistoryScreen(
 
     StudioScaffold(
         selectedTab = StudioTab.Gallery,
+        horizontalPadding = 8.dp,
         modifier = Modifier.fillMaxSize().systemBarsPadding(),
         onInterior = onInterior,
         onExterior = onExterior,
@@ -137,7 +138,7 @@ fun HistoryScreen(
                 } else {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(1),
-                        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                        modifier = Modifier.fillMaxSize(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(top = 2.dp, bottom = 100.dp)
@@ -191,7 +192,7 @@ fun ProjectItem(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
             .clickable { onClick() } // Call onClick when the item is clicked
     ) {

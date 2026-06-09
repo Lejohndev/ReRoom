@@ -14,9 +14,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -135,17 +133,17 @@ fun ChatScreen(
                     }
                 }
 
-                // Input Bar
+                    // Input Bar
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 12.dp)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
                     // Image Preview khi được chọn
                     if (uiState.selectedImageUri != null) {
                         Box(
                             modifier = Modifier
-                                .padding(bottom = 8.dp, start = 52.dp)
+                                .padding(bottom = 8.dp)
                                 .size(80.dp)
                                 .background(Color.White, RoundedCornerShape(14.dp))
                                 .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(14.dp))
@@ -179,8 +177,13 @@ fun ChatScreen(
                         }
                     }
 
+                    var showModelMenu by remember { mutableStateOf(false) }
+                    var showResMenu by remember { mutableStateOf(false) }
+
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -197,61 +200,172 @@ fun ChatScreen(
                             )
                         }
 
-                        TextField(
-                            value = uiState.inputText,
-                            onValueChange = viewModel::onInputTextChanged,
-                            placeholder = {
-                                Text(
-                                    "Design everything for you....",
-                                    color = StudioMuted,
-                                    fontSize = 14.sp
-                                )
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .heightIn(min = 44.dp),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                cursorColor = StudioPurple
-                            ),
-                            shape = RoundedCornerShape(24.dp),
-                            trailingIcon = {
-                                Box(
-                                    modifier = Modifier
-                                        .padding(end = 4.dp)
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .then(
-                                            if (uiState.isLoading) {
-                                                Modifier.background(StudioMuted)
-                                            } else {
-                                                Modifier.background(StudioGradient)
-                                            }
-                                        )
-                                        .clickable(enabled = !uiState.isLoading) { viewModel.sendMessage() },
-                                    contentAlignment = Alignment.Center
+                        Box {
+                            Surface(
+                                onClick = { showModelMenu = true },
+                                shape = RoundedCornerShape(12.dp),
+                                color = Color(0xFFF3F4F6),
+                                modifier = Modifier.height(44.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    if (uiState.isLoading) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(16.dp),
-                                            color = Color.White,
-                                            strokeWidth = 2.dp
-                                        )
-                                    } else {
-                                        Icon(
-                                            Icons.Default.ArrowUpward,
-                                            contentDescription = "Send",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
+                                    Text(
+                                        text = when(uiState.selectedModel) {
+                                            "generate-pro" -> "Pro"
+                                            "generate-2" -> "V2"
+                                            "nanobanana" -> "Base"
+                                            else -> "Model"
+                                        },
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = StudioText
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = StudioMuted
+                                    )
                                 }
                             }
-                        )
+                            DropdownMenu(
+                                expanded = showModelMenu,
+                                onDismissRequest = { showModelMenu = false },
+                                modifier = Modifier.background(Color.White)
+                            ) {
+                                listOf(
+                                    "generate-2" to "Nanobanana V2",
+                                    "generate-pro" to "Pro Model",
+                                    "nanobanana" to "Base Model"
+                                ).forEach { (id, label) ->
+                                    DropdownMenuItem(
+                                        text = { Text(label, fontSize = 14.sp) },
+                                        onClick = {
+                                            viewModel.selectModel(id)
+                                            showModelMenu = false
+                                        }
+                                    )
+                                }
+                                HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = { Text("Default (Server)", fontSize = 14.sp, color = StudioMuted) },
+                                    onClick = {
+                                        viewModel.selectModel(null)
+                                        showModelMenu = false
+                                    }
+                                )
+                            }
+                        }
+
+                        Box {
+                            Surface(
+                                onClick = { showResMenu = true },
+                                shape = RoundedCornerShape(12.dp),
+                                color = Color(0xFFF3F4F6),
+                                modifier = Modifier.height(44.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = uiState.selectedResolution ?: "Res",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = StudioText
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = StudioMuted
+                                    )
+                                }
+                            }
+                            DropdownMenu(
+                                expanded = showResMenu,
+                                onDismissRequest = { showResMenu = false },
+                                modifier = Modifier.background(Color.White)
+                            ) {
+                                listOf("1K", "2K", "4K").forEach { res ->
+                                    DropdownMenuItem(
+                                        text = { Text(res, fontSize = 14.sp) },
+                                        onClick = {
+                                            viewModel.selectResolution(res)
+                                            showResMenu = false
+                                        }
+                                    )
+                                }
+                                HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = { Text("Default (1K)", fontSize = 14.sp, color = StudioMuted) },
+                                    onClick = {
+                                        viewModel.selectResolution(null)
+                                        showResMenu = false
+                                    }
+                                )
+                            }
+                        }
                     }
+
+                    TextField(
+                        value = uiState.inputText,
+                        onValueChange = viewModel::onInputTextChanged,
+                        placeholder = {
+                            Text(
+                                "Design everything for you....",
+                                color = StudioMuted,
+                                fontSize = 14.sp
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 44.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color(0xFFF3F4F6),
+                            unfocusedContainerColor = Color(0xFFF3F4F6),
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            cursorColor = StudioPurple
+                        ),
+                        shape = RoundedCornerShape(24.dp),
+                        trailingIcon = {
+                            Box(
+                                modifier = Modifier
+                                    .padding(end = 4.dp)
+                                    .size(32.dp)
+                                    .clip(CircleShape)
+                                    .then(
+                                        if (uiState.isLoading) {
+                                            Modifier.background(StudioMuted)
+                                        } else {
+                                            Modifier.background(StudioGradient)
+                                        }
+                                    )
+                                    .clickable(enabled = !uiState.isLoading) { viewModel.sendMessage() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (uiState.isLoading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        color = Color.White,
+                                        strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.Default.ArrowUpward,
+                                        contentDescription = "Send",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+                        }
+                    )
                 }
             }
         }

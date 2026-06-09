@@ -144,6 +144,14 @@ class DesignViewModel(
         _uiState.value = _uiState.value.copy(selectedStyle = style, errorMessage = null)
     }
 
+    fun selectModel(model: String) {
+        _uiState.value = _uiState.value.copy(selectedModel = model)
+    }
+
+    fun selectResolution(resolution: String) {
+        _uiState.value = _uiState.value.copy(selectedResolution = resolution)
+    }
+
     fun createDesign() {
         val currentState = _uiState.value
         val imageUri = currentState.selectedImageUri
@@ -175,7 +183,9 @@ class DesignViewModel(
                     imageUri = imageUri,
                     styleId = if (isRemoveFurniture) null else styleId,
                     roomType = if (isRemoveFurniture) null else currentState.selectedRoomType,
-                    featureId = if (isRemoveFurniture) "remove_furniture" else currentState.selectedFeature ?: "interior_design"
+                    featureId = if (isRemoveFurniture) "remove_furniture" else currentState.selectedFeature ?: "interior_design",
+                    model = currentState.selectedModel,
+                    resolution = currentState.selectedResolution
                 )
             )
                 .onSuccess { response ->
