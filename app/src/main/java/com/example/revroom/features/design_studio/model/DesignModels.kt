@@ -15,10 +15,10 @@ data class DesignStyle(
     val styleId: Int,
     val styleName: String,
     val coreAesthetic: String = "",
-    val lightingOptions: List<String> = emptyList(),
-    val materialOptions: List<String> = emptyList(),
-    val colorRuleOptions: List<String> = emptyList(),
-    val atmosphereOptions: List<String> = emptyList()
+    val lighting: String = "",
+    val material: String = "",
+    val color: String = "",
+    val atmosphere: String = ""
 )
 
 enum class DesignMode {

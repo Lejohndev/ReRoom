@@ -64,10 +64,10 @@ class DesignRepository(
                     styleId = style.styleId,
                     styleName = style.styleName,
                     coreAesthetic = style.coreAesthetic ?: "",
-                    lightingOptions = style.lightingOptions ?: emptyList(),
-                    materialOptions = style.materialOptions ?: emptyList(),
-                    colorRuleOptions = style.colorRuleOptions ?: emptyList(),
-                    atmosphereOptions = style.atmosphereOptions ?: emptyList()
+                    lighting = style.lighting ?: "",
+                    material = style.material ?: "",
+                    color = style.color ?: "",
+                    atmosphere = style.atmosphere ?: ""
                 )
             }
         }

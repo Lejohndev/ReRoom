@@ -78,10 +78,10 @@ data class DesignStyleResponse(
     val styleId: Int,
     val styleName: String,
     val coreAesthetic: String? = null,
-    val lightingOptions: List<String>? = emptyList(),
-    val materialOptions: List<String>? = emptyList(),
-    val colorRuleOptions: List<String>? = emptyList(),
-    val atmosphereOptions: List<String>? = emptyList()
+    val lighting: String? = null,
+    val material: String? = null,
+    val color: String? = null,
+    val atmosphere: String? = null
 )
 
 data class DesignStatusResponse(

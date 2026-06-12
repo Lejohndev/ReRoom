@@ -45,10 +45,10 @@ class DesignViewModel(
         val label: String,
         val colors: List<Color>,
         val description: String = "",
-        val lightingOptions: List<String> = emptyList(),
-        val materialOptions: List<String> = emptyList(),
-        val colorRuleOptions: List<String> = emptyList(),
-        val atmosphereOptions: List<String> = emptyList(),
+        val lighting: String = "",
+        val material: String = "",
+        val color: String = "",
+        val atmosphere: String = "",
         val imageRes: Int? = null
     )
 
@@ -225,10 +225,10 @@ class DesignViewModel(
                             label = style.styleName,
                             colors = stylePalettes[index % stylePalettes.size],
                             description = style.coreAesthetic,
-                            lightingOptions = style.lightingOptions,
-                            materialOptions = style.materialOptions,
-                            colorRuleOptions = style.colorRuleOptions,
-                            atmosphereOptions = style.atmosphereOptions
+                            lighting = style.lighting,
+                            material = style.material,
+                            color = style.color,
+                            atmosphere = style.atmosphere
                         )
                     }
                 }
