@@ -1,6 +1,5 @@
 package com.example.revroom.features.design_studio.viewmodel
 
-import android.content.Context
 import android.net.Uri
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -106,11 +105,8 @@ class DesignViewModel(
         SelectionItem("living_room", "Living Room", listOf(Color(0xFFD8C3A5), Color(0xFF735F4D)), imageRes = R.drawable.room_living_room),
         SelectionItem("master_bedroom", "Master Bedroom", listOf(Color(0xFFE6D8CC), Color(0xFF78909C)), imageRes = R.drawable.room_master_bedroom),
         SelectionItem("kitchen", "Kitchen", listOf(Color(0xFFDCE8E4), Color(0xFF7E8D85)), imageRes = R.drawable.room_kitchen),
-        SelectionItem("dining_room", "Dining Room", listOf(Color(0xFFECE4D7), Color(0xFFB48B58)), imageRes = R.drawable.room_dining_room),
         SelectionItem("bathroom", "Bathroom", listOf(Color(0xFFE7E1D4), Color(0xFFA79F93)), imageRes = R.drawable.room_bathroom),
         SelectionItem("study_room", "Study Room", listOf(Color(0xFFE8E2DB), Color(0xFFB9A18D)), imageRes = R.drawable.room_study_room),
-        SelectionItem("kids_room", "Kids Room", listOf(Color(0xFFE9F0EF), Color(0xFFA7C7C5)), imageRes = R.drawable.room_kids_room),
-        SelectionItem("walk_in_closet", "Walk-in Closet", listOf(Color(0xFFE5D7C6), Color(0xFF9E8065)), imageRes = R.drawable.room_walk_in_closet),
     )
 
     private val stylePalettes = listOf(
@@ -148,74 +144,7 @@ class DesignViewModel(
     }
 
     fun selectModel(model: String) {
-        _uiState.value = _uiState.value.copy(selectedModel = model)
-    }
-
-    fun selectResolution(resolution: String) {
-        _uiState.value = _uiState.value.copy(selectedResolution = resolution)
-    }
-
-    fun createDesign() {
-        val currentState = _uiState.value
-        val imageUri = currentState.selectedImageUri
-        val styleId = currentState.selectedStyle?.toIntOrNull()
-        val isRemoveFurniture = currentState.selectedFeature == "remove_furniture"
-
-        if (imageUri == null) {
-            _uiState.value = currentState.copy(
-                phase = DesignPhase.Failed,
-                errorMessage = "Please choose a photo."
-            )
-            return
-        }
-
-        if (!isRemoveFurniture && (styleId == null || (currentState.designMode == DesignMode.Interior && currentState.selectedRoomType == null))) {
-            _uiState.value = currentState.copy(
-                phase = DesignPhase.Failed,
-                errorMessage = "Please choose a photo, room type, and style."
-            )
-            return
-        }
-
-        pollingJob?.cancel()
-        _uiState.value = currentState.copy(phase = DesignPhase.Uploading, errorMessage = null)
-
-        viewModelScope.launch {
-            repository.uploadDesign(
-                DesignRequest(
-                    imageUri = imageUri,
-                    styleId = if (isRemoveFurniture) null else styleId,
-                    roomType = if (isRemoveFurniture) null else currentState.selectedRoomType,
-                    featureId = if (isRemoveFurniture) "remove_furniture" else currentState.selectedFeature ?: "interior_design",
-                    model = currentState.selectedModel,
-                    resolution = currentState.selectedResolution
-                )
-            )
-                .onSuccess { response ->
-                    _uiState.value = _uiState.value.copy(
-                        phase = DesignPhase.Processing,
-                        designId = response.designId,
-                        originalImageUrl = response.originalImageUrl,
-                        errorMessage = null
-                    )
-                    startPolling(response.designId)
-                }
-                .onFailure { error ->
-                    _uiState.value = _uiState.value.copy(
-                        phase = DesignPhase.Failed,
-                        errorMessage = error.message ?: "Unable to create the design."
-                    )
-                }
-        }
-    }
-
-    fun retry() {
-        createDesign()
-    }
-
-    fun reset() {
-        pollingJob?.cancel()
-        _uiState.value = DesignUiState(designMode = _uiState.value.designMode)
+        _uiState.value = _uiState.value.copy(selectedModel = model, errorMessage = null)
     }
 
     private fun loadDesignStyles() {
@@ -248,11 +177,6 @@ class DesignViewModel(
         }
     }
 
-    /**
-     * Rebuild style preview asset paths when the selected room type changes.
-     * This updates the preview image for each style card to show
-     * room-specific images (e.g., master_bedroom/modern.webp).
-     */
     private fun rebuildStylePreviews(roomType: String) {
         val currentStyles = _designStyles.value
         if (currentStyles.isEmpty()) return
@@ -270,75 +194,76 @@ class DesignViewModel(
     private fun startPolling(designId: String) {
         pollingJob?.cancel()
         pollingJob = viewModelScope.launch {
-            repeat(MAX_POLL_ATTEMPTS) {
-                delay(POLL_INTERVAL_MS)
-
-                val currentPhase = _uiState.value.phase
-                if (currentPhase == DesignPhase.Completed || currentPhase == DesignPhase.Failed) {
-                    return@launch
-                }
-
+            while (true) {
                 repository.getDesignStatus(designId)
-                    .onSuccess { status ->
-                        when (status.status) {
-                            DesignJobStatus.Completed -> {
-                                _uiState.value = _uiState.value.copy(
-                                    phase = DesignPhase.Completed,
-                                    originalImageUrl = status.originalImageUrl,
-                                    designedImageUrl = status.designedImageUrl,
-                                    errorMessage = null
-                                )
-                                return@launch
+                    .onSuccess { result ->
+                        _uiState.value = _uiState.value.copy(
+                            designId = result.designId,
+                            designedImageUrl = result.designedImageUrl,
+                            phase = when (result.status) {
+                                DesignJobStatus.Completed -> DesignPhase.Completed
+                                DesignJobStatus.Failed -> DesignPhase.Failed
+                                else -> DesignPhase.Processing
                             }
-
-                            DesignJobStatus.Failed -> {
-                                _uiState.value = _uiState.value.copy(
-                                    phase = DesignPhase.Failed,
-                                    errorMessage = status.errorMessage ?: "Design generation failed."
-                                )
-                                return@launch
-                            }
-
-                            else -> {
-                                _uiState.value = _uiState.value.copy(
-                                    phase = DesignPhase.Processing,
-                                    originalImageUrl = status.originalImageUrl
-                                )
-                            }
+                        )
+                        if (result.status == DesignJobStatus.Completed || result.status == DesignJobStatus.Failed) {
+                            return@launch
                         }
                     }
-                    .onFailure { error ->
-                        _uiState.value = _uiState.value.copy(
-                            phase = DesignPhase.Failed,
-                            errorMessage = error.message ?: "Unable to check design status."
-                        )
-                        return@launch
-                    }
+                delay(3000)
             }
+        }
+    }
 
-            _uiState.value = _uiState.value.copy(
-                phase = DesignPhase.Failed,
-                errorMessage = "The generation is taking too long. Please try again."
+    fun createDesign() {
+        val state = _uiState.value
+        val styleIdInt = if (state.selectedFeature == "remove_furniture") 0 else state.selectedStyle?.toIntOrNull()
+        
+        if (state.selectedImageUri == null || (state.selectedFeature != "remove_furniture" && (state.selectedRoomType == null || styleIdInt == null))) {
+            _uiState.value = state.copy(errorMessage = "Please complete all steps.")
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(phase = DesignPhase.Processing)
+            
+            val request = DesignRequest(
+                imageUri = state.selectedImageUri,
+                styleId = styleIdInt,
+                roomType = state.selectedRoomType,
+                featureId = state.selectedFeature
             )
+
+            repository.uploadDesign(request)
+                .onSuccess { result ->
+                    _uiState.value = _uiState.value.copy(
+                        designId = result.designId,
+                        originalImageUrl = result.originalImageUrl
+                    )
+                    startPolling(result.designId)
+                }
+                .onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        phase = DesignPhase.Idle,
+                        errorMessage = error.message ?: "Design generation failed."
+                    )
+                }
         }
     }
 
-    override fun onCleared() {
+    fun retry() {
+        createDesign()
+    }
+
+    fun reset() {
         pollingJob?.cancel()
-        super.onCleared()
+        _uiState.value = DesignUiState()
     }
 
-    class Factory(context: Context) : ViewModelProvider.Factory {
-        private val appContext = context.applicationContext
-
-        @Suppress("UNCHECKED_CAST")
+    class Factory(private val repository: DesignRepository) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return DesignViewModel(DesignRepository(appContext)) as T
+            @Suppress("UNCHECKED_CAST")
+            return DesignViewModel(repository) as T
         }
-    }
-
-    private companion object {
-        const val POLL_INTERVAL_MS = 2_000L
-        const val MAX_POLL_ATTEMPTS = 150
     }
 }

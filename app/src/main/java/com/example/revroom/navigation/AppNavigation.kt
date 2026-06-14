@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,6 +38,7 @@ import com.example.revroom.core.ui.StudioBackground
 import com.example.revroom.core.ui.StudioBottomBar
 import com.example.revroom.core.ui.StudioTab
 import com.example.revroom.data.local.UserManager
+import com.example.revroom.data.repository.DesignRepository
 import com.example.revroom.features.auth.ui.SettingsScreen
 import com.example.revroom.features.chat.ui.ChatScreen
 import com.example.revroom.features.design_studio.model.DesignMode
@@ -58,7 +60,12 @@ import com.example.revroom.features.history.ui.HistoryScreen
 fun AppNavigation() {
     val context = LocalContext.current
     val density = LocalDensity.current
-    val factory = remember(context) { DesignViewModel.Factory(context) }
+    
+    // Sửa lỗi Factory mismatch: Truyền DesignRepository thay vì Context
+    val factory = remember(context) { 
+        DesignViewModel.Factory(DesignRepository(context)) 
+    }
+    
     val viewModel: DesignViewModel = viewModel(factory = factory)
     val uiState by viewModel.uiState.collectAsState()
     val designStyles by viewModel.designStyles.collectAsState()
@@ -66,11 +73,15 @@ fun AppNavigation() {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentMainTab = currentBackStackEntry?.destination?.route.toStudioTab()
     var lastMainTab by remember { mutableStateOf(StudioTab.Interior) }
-    var bottomBarHeightPx by remember { mutableStateOf(0) }
+    
+    // Sử dụng mutableIntStateOf thay vì mutableStateOf cho Int
+    var bottomBarHeightPx by remember { mutableIntStateOf(0) }
+    
     val isBottomBarVisible = currentMainTab != null
     val bottomSafeInsetPx = WindowInsets.navigationBars.getBottom(density).toFloat()
     val hiddenOffsetBufferPx = with(density) { BOTTOM_BAR_HIDE_BUFFER_DP.dp.toPx() }
     val hiddenBottomBarOffsetPx = bottomBarHeightPx + bottomSafeInsetPx + hiddenOffsetBufferPx
+    
     val bottomBarOffsetY by animateFloatAsState(
         targetValue = if (isBottomBarVisible) 0f else hiddenBottomBarOffsetPx,
         animationSpec = tween(
@@ -79,6 +90,7 @@ fun AppNavigation() {
         ),
         label = "BottomBarOffsetY"
     )
+
     val bottomBarAlpha = if (
         !isBottomBarVisible &&
         hiddenBottomBarOffsetPx > 0f &&
