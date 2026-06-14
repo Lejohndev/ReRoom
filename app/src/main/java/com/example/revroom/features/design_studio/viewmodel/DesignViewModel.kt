@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.revroom.R
+import com.example.revroom.core.utils.StylePreviewAssetBuilder
 import com.example.revroom.data.repository.DesignRepository
 import com.example.revroom.features.design_studio.model.DesignJobStatus
 import com.example.revroom.features.design_studio.model.DesignMode
@@ -49,7 +50,8 @@ class DesignViewModel(
         val material: String = "",
         val color: String = "",
         val atmosphere: String = "",
-        val imageRes: Int? = null
+        val imageRes: Int? = null,
+        val previewAssetPath: String? = null
     )
 
     val interiorFeatures = listOf(
@@ -138,6 +140,7 @@ class DesignViewModel(
 
     fun selectRoomType(roomType: String) {
         _uiState.value = _uiState.value.copy(selectedRoomType = roomType, errorMessage = null)
+        rebuildStylePreviews(roomType)
     }
 
     fun selectStyle(style: String) {
@@ -219,6 +222,7 @@ class DesignViewModel(
         viewModelScope.launch {
             repository.getDesignStyles()
                 .onSuccess { styles ->
+                    val currentRoomType = _uiState.value.selectedRoomType
                     _designStyles.value = styles.mapIndexed { index, style ->
                         SelectionItem(
                             id = style.styleId.toString(),
@@ -228,7 +232,11 @@ class DesignViewModel(
                             lighting = style.lighting,
                             material = style.material,
                             color = style.color,
-                            atmosphere = style.atmosphere
+                            atmosphere = style.atmosphere,
+                            previewAssetPath = StylePreviewAssetBuilder.buildAssetPath(
+                                roomType = currentRoomType,
+                                styleName = style.styleName
+                            )
                         )
                     }
                 }
@@ -237,6 +245,25 @@ class DesignViewModel(
                         errorMessage = error.message ?: "Unable to load design styles."
                     )
                 }
+        }
+    }
+
+    /**
+     * Rebuild style preview asset paths when the selected room type changes.
+     * This updates the preview image for each style card to show
+     * room-specific images (e.g., master_bedroom/modern.webp).
+     */
+    private fun rebuildStylePreviews(roomType: String) {
+        val currentStyles = _designStyles.value
+        if (currentStyles.isEmpty()) return
+
+        _designStyles.value = currentStyles.map { style ->
+            style.copy(
+                previewAssetPath = StylePreviewAssetBuilder.buildAssetPath(
+                    roomType = roomType,
+                    styleName = style.label
+                )
+            )
         }
     }
 
