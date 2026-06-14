@@ -1,5 +1,6 @@
 package com.example.revroom.features.design_studio.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +32,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import com.example.revroom.core.ui.BackOutlineButton
 import com.example.revroom.core.ui.GradientButton
 import com.example.revroom.core.ui.StepProgress
@@ -160,6 +165,7 @@ private fun StyleSelectionItem(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    Log.d("StylePreview", "Style=${item.label} Path=${item.previewAssetPath}")
     Column(
         modifier = Modifier.clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -179,7 +185,40 @@ private fun StyleSelectionItem(
                     tint = Color.White,
                     modifier = Modifier.size(22.dp)
                 )
+            } else if (!item.previewAssetPath.isNullOrBlank()) {
+                // Load room-specific style preview image
+                SubcomposeAsyncImage(
+                    model = item.previewAssetPath,
+                    contentDescription = item.label,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                    success = {
+                        SubcomposeAsyncImageContent()
+                    },
+                    loading = {
+                        // Show gradient as loading placeholder
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Brush.linearGradient(item.colors))
+                        )
+                    },
+                    error = {
+                        // Fallback to gradient if image is missing
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Brush.linearGradient(item.colors))
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Brush.verticalGradient(listOf(Color.Transparent, Color(0x33000000))))
+                        )
+                    }
+                )
             } else {
+                // No preview URL — use gradient fallback
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
