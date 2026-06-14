@@ -35,7 +35,7 @@ object StylePreviewAssetBuilder {
         if (roomType.isNullOrBlank()) return null
 
         // Chuyển đổi ID phòng nếu cần (ví dụ từ backend về format folder)
-        val folderName = roomType.lowercase().trim()
+        val folderName = roomType.lowercase().trim().replace(" ", "_")
 
         if (!supportedRoomTypes.contains(folderName)) {
             Log.w("StylePreview", "Folder '$folderName' not supported")
