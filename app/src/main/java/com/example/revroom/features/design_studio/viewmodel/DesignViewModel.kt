@@ -200,6 +200,7 @@ class DesignViewModel(
                         _uiState.value = _uiState.value.copy(
                             designId = result.designId,
                             designedImageUrl = result.designedImageUrl,
+                            errorMessage = result.errorMessage,
                             phase = when (result.status) {
                                 DesignJobStatus.Completed -> DesignPhase.Completed
                                 DesignJobStatus.Failed -> DesignPhase.Failed
@@ -217,9 +218,13 @@ class DesignViewModel(
 
     fun createDesign() {
         val state = _uiState.value
-        val styleIdInt = if (state.selectedFeature == "remove_furniture") 0 else state.selectedStyle?.toIntOrNull()
+        val styleIdInt = if (state.selectedFeature == "remove_furniture") null else state.selectedStyle?.toIntOrNull()
         
-        if (state.selectedImageUri == null || (state.selectedFeature != "remove_furniture" && (state.selectedRoomType == null || styleIdInt == null))) {
+        val isRemoveFurniture = state.selectedFeature == "remove_furniture"
+        val isMissingRequiredFields = state.selectedImageUri == null || 
+                (!isRemoveFurniture && (state.selectedRoomType == null || styleIdInt == null))
+
+        if (isMissingRequiredFields) {
             _uiState.value = state.copy(errorMessage = "Please complete all steps.")
             return
         }
