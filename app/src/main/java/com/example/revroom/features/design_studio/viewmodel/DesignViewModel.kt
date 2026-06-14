@@ -13,6 +13,8 @@ import com.example.revroom.features.design_studio.model.DesignMode
 import com.example.revroom.features.design_studio.model.DesignPhase
 import com.example.revroom.features.design_studio.model.DesignRequest
 import com.example.revroom.features.design_studio.model.DesignUiState
+import com.example.revroom.features.design_studio.model.DesignStyle
+import com.example.revroom.features.design_studio.model.DesignResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +25,7 @@ import kotlinx.coroutines.launch
 class DesignViewModel(
     private val repository: DesignRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(DesignUiState())
+    private val _uiState = MutableStateFlow<DesignUiState>(DesignUiState())
     val uiState: StateFlow<DesignUiState> = _uiState.asStateFlow()
 
     private val _designStyles = MutableStateFlow<List<SelectionItem>>(emptyList())
@@ -131,28 +133,32 @@ class DesignViewModel(
     }
 
     fun selectImage(uri: Uri?) {
-        _uiState.value = _uiState.value.copy(selectedImageUri = uri, errorMessage = null)
+        val currentState = _uiState.value
+        _uiState.value = currentState.copy(selectedImageUri = uri, errorMessage = null)
     }
 
     fun selectRoomType(roomType: String) {
-        _uiState.value = _uiState.value.copy(selectedRoomType = roomType, errorMessage = null)
+        val currentState = _uiState.value
+        _uiState.value = currentState.copy(selectedRoomType = roomType, errorMessage = null)
         rebuildStylePreviews(roomType)
     }
 
     fun selectStyle(style: String) {
-        _uiState.value = _uiState.value.copy(selectedStyle = style, errorMessage = null)
+        val currentState = _uiState.value
+        _uiState.value = currentState.copy(selectedStyle = style, errorMessage = null)
     }
 
     fun selectModel(model: String) {
-        _uiState.value = _uiState.value.copy(selectedModel = model, errorMessage = null)
+        val currentState = _uiState.value
+        _uiState.value = currentState.copy(selectedModel = model, errorMessage = null)
     }
 
     private fun loadDesignStyles() {
         viewModelScope.launch {
             repository.getDesignStyles()
-                .onSuccess { styles ->
+                .onSuccess { styles: List<DesignStyle> ->
                     val currentRoomType = _uiState.value.selectedRoomType
-                    _designStyles.value = styles.mapIndexed { index, style ->
+                    _designStyles.value = styles.mapIndexed { index: Int, style: DesignStyle ->
                         SelectionItem(
                             id = style.styleId.toString(),
                             label = style.styleName,
@@ -169,8 +175,9 @@ class DesignViewModel(
                         )
                     }
                 }
-                .onFailure { error ->
-                    _uiState.value = _uiState.value.copy(
+                .onFailure { error: Throwable ->
+                    val currentState = _uiState.value
+                    _uiState.value = currentState.copy(
                         errorMessage = error.message ?: "Unable to load design styles."
                     )
                 }
@@ -181,7 +188,7 @@ class DesignViewModel(
         val currentStyles = _designStyles.value
         if (currentStyles.isEmpty()) return
 
-        _designStyles.value = currentStyles.map { style ->
+        _designStyles.value = currentStyles.map { style: SelectionItem ->
             style.copy(
                 previewAssetPath = StylePreviewAssetBuilder.buildAssetPath(
                     roomType = roomType,
@@ -196,8 +203,9 @@ class DesignViewModel(
         pollingJob = viewModelScope.launch {
             while (true) {
                 repository.getDesignStatus(designId)
-                    .onSuccess { result ->
-                        _uiState.value = _uiState.value.copy(
+                    .onSuccess { result: DesignResult ->
+                        val currentState = _uiState.value
+                        _uiState.value = currentState.copy(
                             designId = result.designId,
                             designedImageUrl = result.designedImageUrl,
                             errorMessage = result.errorMessage,
@@ -211,14 +219,22 @@ class DesignViewModel(
                             return@launch
                         }
                     }
+                    .onFailure { error: Throwable ->
+                        val currentState = _uiState.value
+                        _uiState.value = currentState.copy(
+                            phase = DesignPhase.Failed,
+                            errorMessage = error.message ?: "Failed to get design status."
+                        )
+                        return@launch
+                    }
                 delay(3000)
             }
         }
     }
 
     fun createDesign() {
-        val state = _uiState.value
-        val styleIdInt = if (state.selectedFeature == "remove_furniture") null else state.selectedStyle?.toIntOrNull()
+        val state: DesignUiState = _uiState.value
+        val styleIdInt: Int? = if (state.selectedFeature == "remove_furniture") null else state.selectedStyle?.toIntOrNull()
         
         val isRemoveFurniture = state.selectedFeature == "remove_furniture"
         val isMissingRequiredFields = state.selectedImageUri == null || 
@@ -230,25 +246,28 @@ class DesignViewModel(
         }
 
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(phase = DesignPhase.Processing)
+            val currentState = _uiState.value
+            _uiState.value = currentState.copy(phase = DesignPhase.Processing, errorMessage = null)
             
             val request = DesignRequest(
-                imageUri = state.selectedImageUri,
+                imageUri = state.selectedImageUri!!,
                 styleId = styleIdInt,
                 roomType = state.selectedRoomType,
                 featureId = state.selectedFeature
             )
 
             repository.uploadDesign(request)
-                .onSuccess { result ->
-                    _uiState.value = _uiState.value.copy(
+                .onSuccess { result: DesignResult ->
+                    val updatedState = _uiState.value
+                    _uiState.value = updatedState.copy(
                         designId = result.designId,
                         originalImageUrl = result.originalImageUrl
                     )
                     startPolling(result.designId)
                 }
-                .onFailure { error ->
-                    _uiState.value = _uiState.value.copy(
+                .onFailure { error: Throwable ->
+                    val updatedState = _uiState.value
+                    _uiState.value = updatedState.copy(
                         phase = DesignPhase.Idle,
                         errorMessage = error.message ?: "Design generation failed."
                     )
