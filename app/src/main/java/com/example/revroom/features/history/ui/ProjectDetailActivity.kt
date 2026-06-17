@@ -1,8 +1,12 @@
 package com.example.revroom.features.history.ui
 
 import android.app.Activity
+import android.app.DownloadManager
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -115,6 +119,34 @@ class ProjectDetailActivity : AppCompatActivity() {
 
         binding.btnDelete.setOnClickListener {
             showDeleteConfirmDialog()
+        }
+
+        binding.btnDownloadDesigned.setOnClickListener {
+            val url = if (designedImageUrl.isNullOrEmpty()) originalImageUrl else designedImageUrl
+            url?.let { downloadImage(it, "Designed_${designId}") }
+        }
+
+        binding.btnDownloadOriginal.setOnClickListener {
+            originalImageUrl?.let { downloadImage(it, "Original_${designId}") }
+        }
+    }
+
+    private fun downloadImage(url: String, fileName: String) {
+        try {
+            val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val uri = Uri.parse(url)
+            val request = DownloadManager.Request(uri).apply {
+                setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+                setAllowedOverRoaming(false)
+                setTitle("Downloading Image")
+                setDescription("Project image is being downloaded...")
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "$fileName.jpg")
+            }
+            downloadManager.enqueue(request)
+            Toast.makeText(this, "Download started...", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Failed to download image: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 

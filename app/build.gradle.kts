@@ -20,7 +20,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:5207/\"")
+            buildConfigField("String", "API_BASE_URL", "\"http://192.168.43.9:5207/\"")
             manifestPlaceholders["usesCleartextTraffic"] = "true"
         }
         release {
@@ -44,12 +44,8 @@ android {
     }
 }
 
-kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-        vendor.set(JvmVendorSpec.ADOPTIUM)
-    }
-}
+// Removed jvmToolchain to prevent conflict with incomplete JREs.
+// Gradle will use the JDK specified in gradle.properties or JAVA_HOME.
 
 dependencies {
     // Core Android & Compose

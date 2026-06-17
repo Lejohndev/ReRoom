@@ -37,10 +37,12 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
+import com.example.revroom.core.theme.RevroomTheme
 import kotlin.math.roundToInt
 
 /**
@@ -198,5 +200,16 @@ private fun ImageErrorPlaceholder(message: String) {
                 color = Color(0xFF6B7280)
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BeforeAfterSliderPreview() {
+    RevroomTheme {
+        BeforeAfterSlider(
+            beforeImageUrl = "https://example.com/before.jpg",
+            afterImageUrl = "https://example.com/after.jpg"
+        )
     }
 }

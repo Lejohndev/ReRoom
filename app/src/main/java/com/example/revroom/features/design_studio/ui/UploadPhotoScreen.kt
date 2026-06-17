@@ -37,9 +37,11 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.revroom.core.theme.RevroomTheme
 import com.example.revroom.core.ui.GradientButton
 import com.example.revroom.core.ui.StepProgress
 import com.example.revroom.core.ui.StudioMuted
@@ -189,5 +191,24 @@ private fun Size.toImageAspectRatio(): Float? {
         width / height
     } else {
         null
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun UploadPhotoScreenPreview() {
+    RevroomTheme {
+        UploadPhotoScreen(
+            title = "Interior Design",
+            selectedTab = StudioTab.Interior,
+            selectedImageUri = null,
+            onImageSelected = {},
+            onNext = {},
+            onBack = {},
+            onInterior = {},
+            onExterior = {},
+            onChat = {},
+            onGallery = {}
+        )
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,7 +20,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.revroom.core.theme.RevroomTheme
 import com.example.revroom.core.ui.StudioPink
 import com.example.revroom.core.ui.StudioPurple
 
@@ -131,6 +134,16 @@ fun FanSpinnerAnimation(modifier: Modifier = Modifier) {
             color = Color.White.copy(alpha = 0.86f),
             radius = diameter * 0.042f * pulse,
             center = center
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FanSpinnerAnimationPreview() {
+    RevroomTheme {
+        FanSpinnerAnimation(
+            modifier = Modifier.padding(16.dp)
         )
     }
 }

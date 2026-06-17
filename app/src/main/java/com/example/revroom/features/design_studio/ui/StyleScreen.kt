@@ -35,10 +35,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
+import com.example.revroom.core.theme.RevroomTheme
 import com.example.revroom.core.ui.BackOutlineButton
 import com.example.revroom.core.ui.GradientButton
 import com.example.revroom.core.ui.StepProgress
@@ -240,3 +242,60 @@ private fun StyleSelectionItem(
 }
 
 private val StudioGradientColor = Color(0xFFC744D9)
+
+@Preview(showBackground = true)
+@Composable
+private fun StyleScreenPreview() {
+    RevroomTheme {
+        StyleScreen(
+            title = "Living Room",
+            selectedTab = StudioTab.Interior,
+            selectedStyle = "modern",
+            styles = listOf(
+                DesignViewModel.SelectionItem(
+                    id = "modern",
+                    label = "Modern",
+                    colors = listOf(Color(0xFFE4E0D9), Color(0xFF7D7269))
+                ),
+                DesignViewModel.SelectionItem(
+                    id = "scandinavian",
+                    label = "Scandinavian",
+                    colors = listOf(Color(0xFFF4F2EE), Color(0xFFC9C4B9))
+                ),
+                DesignViewModel.SelectionItem(
+                    id = "industrial",
+                    label = "Industrial",
+                    colors = listOf(Color(0xFFF0D7BE), Color(0xFFB87555))
+                ),
+                DesignViewModel.SelectionItem(
+                    id = "custom",
+                    label = "Custom Style",
+                    colors = listOf(Color.Gray, Color.DarkGray)
+                )
+            ),
+            onStyleSelected = {},
+            onCreateDesign = {},
+            onBack = {},
+            onInterior = {},
+            onExterior = {},
+            onChat = {},
+            onGallery = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun StyleSelectionItemPreview() {
+    RevroomTheme {
+        StyleSelectionItem(
+            item = DesignViewModel.SelectionItem(
+                id = "modern",
+                label = "Modern",
+                colors = listOf(Color(0xFFE4E0D9), Color(0xFF7D7269))
+            ),
+            selected = true,
+            onClick = {}
+        )
+    }
+}
